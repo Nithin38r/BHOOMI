@@ -8,14 +8,6 @@ HackWithAditya 2026 · AgriTech & Aquaculture track · Andhra Pradesh, India
 
 BHOOMI puts small solar LoRa nodes in the field. Each twin here is a 3D copy of that hardware: it runs its own simulation, and when served by the backend it switches to **live data**, so judges and farmers see exactly what the real nodes report.
 
-## Stages
-
-| Stage | Folder | Status |
-|---|---|---|
-| 1 · Single soil node | [`stage-1-single-soil-node`](stage-1-single-soil-node/) | ✅ Twin + backend + live data |
-| 2 · Multi soil node field | `stage-2-multi-soil-node` | Next |
-| 3 · Mesh hub and farm | `stage-3-mesh-hub` | Planned |
-
 ## Quick start
 
 Needs **Node.js 18 or newer**. No `npm install` for the core.
