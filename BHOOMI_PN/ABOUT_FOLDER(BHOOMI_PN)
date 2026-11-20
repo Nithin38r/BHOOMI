@@ -1,0 +1,23 @@
+BHOOMI POND NODE - PROJECT PACK
+HackWithAditya 2026 - AgriTech & Aquaculture track
+
+START HERE
+  BHOOMI_Pond_Node_Project_Pack.pdf   Full write-up: what we built, parts, pin map, wiring,
+                                      firmware, fault codes, packets, twins, judge demo, tests.
+  CHAT_CONTEXT.md                     Short text summary. Paste it into a new chat so the
+                                      assistant knows the whole project.
+
+DIGITAL TWINS (open in Chrome/Edge, work offline)
+  twins/BHOOMI_Pond_Node_Twin_offline.html   Tank prototype twin. Press "Play judge demo".
+  twins/BHOOMI_Full_Pond_Twin_offline.html   Full pond scale-up twin.
+
+FIRMWARE (Arduino IDE, board "ESP32 Dev Module", ESP32 core 3.0.x)
+  firmware/BhoomiPondNode/BhoomiPondNode.ino      USE THIS: single-board prototype, v2.0
+  firmware/full_pond_v1/PondBuoy/PondBuoy.ino     Pond version: floating sensor buoy
+  firmware/full_pond_v1/PondBank/PondBank.ino     Pond version: bank aerator controller
+  Libraries: LoRa (Sandeep Mistry), Adafruit ADS1X15, Adafruit INA219, Adafruit SSD1306,
+             Adafruit GFX, OneWire, DallasTemperature, RTClib
+
+IMAGES
+  images/   Screenshots of both twins for slides.
+
