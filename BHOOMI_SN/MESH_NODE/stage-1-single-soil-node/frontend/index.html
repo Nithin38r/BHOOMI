@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BHOOMI Soil Node Twin · Stage 1</title>
+<meta name="description" content="BHOOMI Stage 1: 3D digital twin of one solar LoRa soil node, with live data from the BHOOMI backend.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/twin.css">
+<link rel="stylesheet" href="../../shared/live/bhoomi-live.css">
+</head>
+<body>
+<div id="app">
+<header>
+  <div class="brand">
+    <div class="logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M12 22V11"/><path d="M12 11c0-4 3-7 8-7 0 5-3 8-8 7z"/><path d="M12 14c0-3-2.5-5.5-7-5.5 0 4 2.5 6.5 7 5.5z"/></svg></div>
+    <div><h1>BHOOMI · Soil Node Twin</h1><small>Firmware v2.2 · node <span class="mono" id="hdrId">7C9E1A</span> · <b style="color:var(--ink)">Single node</b></small></div>
+  </div>
+  <div class="chips">
+    <span class="chip"><span class="dot ok" id="chipLinkDot"></span>LoRa <b>433.5 MHz</b> SF9</span>
+    <span class="chip"><span class="dot ok" id="chipBatDot"></span>Battery <b id="chipBat">–</b></span>
+    <span class="chip"><span class="dot blue"></span>Report <b id="chipInt">15 min</b></span>
+    <span class="chip"><span class="dot" id="chipHubDot"></span>Hub <b id="chipHub">waiting</b></span>
+  </div>
+  <button class="btn primary" id="demoBtn">▶ Judge demo</button>
+</header>
+<main>
+  <div id="viewWrap">
+    <canvas id="view" aria-label="3D view of the soil node"></canvas>
+    <div id="labels"></div>
+    <div class="viewbar">
+      <button class="vb on" data-cam="overview">Overview</button>
+      <button class="vb" data-cam="head">Head</button>
+      <button class="vb" data-cam="under">Underground</button>
+      <button class="vb" data-cam="tip">Spike tip</button>
+      <button class="vb" id="xrayBtn">Inside view</button>
+      <button class="vb on" id="labBtn">Labels</button>
+    </div>
+    <div id="stateBadge"><div class="big"><span class="dot" id="stDot"></span><span id="stText">Starting…</span></div><div class="sub" id="stSub">&nbsp;</div></div>
+    <div id="caption"><div class="step" id="capStep"></div><h3 id="capTitle"></h3><p id="capText"></p>
+      <div class="row"><button class="vb" id="capPrev">◀ Back</button><button class="vb" id="capExit">Exit</button><button class="vb on" id="capNext">Next ▶</button></div></div>
+    <div id="toast"></div>
+    <div id="noGL"><div><b>3D view needs WebGL.</b><br>All readings, packets and controls still work in the panel.</div></div>
+  </div>
+  <aside>
+    <div class="tabs" role="tablist">
+      <button class="tab on" data-tab="live">Live</button>
+      <button class="tab" data-tab="packets">Packets</button>
+      <button class="tab" data-tab="power">Power</button>
+      <button class="tab" data-tab="weather">Weather</button>
+      <button class="tab" data-tab="faults">Faults</button>
+      <button class="tab" data-tab="hardware">Hardware</button>
+    </div>
+    <div class="pane" id="pane-live">
+      <div class="sec">Hub dashboard — last packet received</div>
+      <div class="cards" id="cards"></div>
+      <div class="sec">What the hub says</div>
+      <div id="alerts"></div>
+      <div id="infoBox"></div>
+    </div>
+    <div class="pane" id="pane-packets" hidden>
+      <div class="sec" style="display:flex;justify-content:space-between;align-items:center">Last LoRa packet <button class="btn sm" id="copyPkt">Copy</button></div>
+      <div class="pkt" id="pktRaw">No packet yet — the node wakes every 15 minutes.</div>
+      <div class="sec">Decoded</div>
+      <table id="pktTable"></table>
+      <div class="sec">Radio log</div>
+      <div class="log" id="radioLog"></div>
+    </div>
+    <div class="pane" id="pane-power" hidden>
+      <div class="sec">Battery · 18650 Li-ion 2600 mAh</div>
+      <div class="batt"><div class="bat"><i id="batFill"></i></div><div><div class="mono" style="font-size:22px;font-weight:600" id="batV">–</div><div class="note" id="batState">–</div></div></div>
+      <div class="sec">Energy right now</div>
+      <div class="kv" id="powerKV"></div>
+      <div class="sec">Sleep current (the biggest lever)</div>
+      <select id="sleepSel" style="width:100%">
+        <option value="5">ESP32 DevKit as bought — ~5 mA</option>
+        <option value="0.5" selected>DevKit, power LED removed — ~0.5 mA</option>
+        <option value="0.03">Bare ESP32 module + HT7833 — ~0.03 mA</option>
+      </select>
+      <div class="kv" style="margin-top:8px" id="lifeKV"></div>
+      <div class="sec">Firmware power rules</div>
+      <div class="note">Every 15 min normally · <b>60 min</b> below 3.40 V · below <b>3.30 V</b> the node skips the radio and sleeps 6 h (v2.2) · sensors powered from GPIO25 only while reading · TP4056 R<sub>PROG</sub> set to ~500 mA.</div>
+      <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" id="drainBtn">Drain battery to 12 %</button><button class="btn sm" id="fullBtn">Charge to 100 %</button></div>
+    </div>
+    <div class="pane" id="pane-weather" hidden>
+      <div class="sec">Field scenarios</div>
+      <div class="grid2" id="scenarios"></div>
+      <div class="sec">Fine-tune</div>
+      <div class="ctl"><label>Cloud cover <span id="cloudV"></span></label><input type="range" id="cloud" min="0" max="100" step="1"></div>
+      <div class="ctl"><label>Rain <span id="rainV"></span></label><input type="range" id="rain" min="0" max="30" step="1"></div>
+      <div class="ctl"><label>Air temperature shift <span id="tshiftV"></span></label><input type="range" id="tshift" min="-8" max="10" step="1"></div>
+      <div class="sw"><div><b>Drip irrigation</b><span>Emitter next to the node</span></div><input type="checkbox" class="toggle g" id="drip"></div>
+      <div class="sec">Jump to</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn sm" data-jump="6">06:00</button><button class="btn sm" data-jump="12">12:00</button><button class="btn sm" data-jump="15">15:00</button><button class="btn sm" data-jump="20">20:00</button><button class="btn sm" data-jump="2">02:00</button>
+        <button class="btn sm" id="skipDay">+1 day</button>
+      </div>
+    </div>
+    <div class="pane" id="pane-faults" hidden>
+      <div class="sec">Inject a fault — watch how the node and hub react</div>
+      <div id="faultList"></div>
+      <div class="note" style="margin-top:8px">A missing sensor is sent as <b>NA</b>: the node never crashes and keeps reporting the rest.</div>
+    </div>
+    <div class="pane" id="pane-hardware" hidden>
+      <div class="sec">Parts — tap one to find it in 3D</div>
+      <table id="hwTable"></table>
+      <div class="sec">Radio</div>
+      <div class="note">SX1278 (Ra-02) · 433.5 MHz · SF9 · BW 125 kHz · CR 4/5 · sync 0x12 · CRC on · 10 dBm · ACK timeout 1.2 s · 3 tries with random back-off.</div>
+      <div class="sec">Firmware v2.2 fixes</div>
+      <div class="note">• LX now reads 0 % in darkness (v2.1 sent NA at night)<br>• Critical battery (&lt; 3.30 V): no radio, sleep 6 h<br>• After a power cut the packet counter restarts at a random number, so the hub doesn’t drop fresh packets as duplicates</div>
+    </div>
+  </aside>
+</main>
+<footer>
+  <div class="tl-ctrl">
+    <button class="btn" id="playBtn" aria-label="Pause">❚❚</button>
+    <select id="speed" aria-label="Simulation speed">
+      <option value="1">1 min/s</option><option value="5" selected>5 min/s</option><option value="15">15 min/s</option><option value="60">1 h/s</option>
+    </select>
+    <button class="btn" id="wakeBtn">Wake now</button>
+  </div>
+  <canvas id="tl" aria-label="24 hour timeline"></canvas>
+  <div class="clock" id="clock">Day 1 06:00<small>next wake –</small></div>
+</footer>
+</div>
+
+<!-- 3D engine (vendored, MIT) -->
+<script src="../../shared/vendor/three.r128.min.js"></script>
+<!-- twin: 3D scene, firmware model, hub rules, UI -->
+<script src="js/twin.js"></script>
+<!-- backend connection: WebSocket client + live/simulation switch -->
+<script src="../../shared/live/bhoomi-live.js"></script>
+<script src="js/live-adapter.js"></script>
+</body>
+</html>

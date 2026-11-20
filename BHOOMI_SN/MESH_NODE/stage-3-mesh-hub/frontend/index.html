@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>BHOOMI Mesh Hub Farm Twin · Stage 3</title>
+<meta name="description" content="BHOOMI Stage 3: 3D twin of the whole farm on one LoRa mesh: soil nodes, pond water node, pump, treatment and storage tanks, and the hub that runs the irrigation rules, with live data and two-way commands.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="css/twin.css">
+<link rel="stylesheet" href="../../shared/live/bhoomi-live.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">BHOOMI · Soil nodes + pond water + smart irrigation · LoRa 433 MHz <br><span id="navLinks"><a href="../../stage-1-single-soil-node/frontend/">Stage 1 · Single node</a> · <a href="../../stage-2-multi-soil-node/frontend/">Stage 2 · Multi-node</a> · <b>Stage 3 · Mesh hub</b></span></div>
+      <h1>BHOOMI Field + Irrigation Twin</h1>
+      <p>Seven BHOOMI soil nodes, a pond water-quality node, a pump switch, a treatment tank and a storage tank with three zone valves — one LoRa mesh. Water is checked for the crop you grow, treated if needed, verified, and only then used where the soil is dry.</p>
+    </div>
+    <div class="ctrl">
+      <div class="clock" id="clock">Day 1 · 06:00</div>
+      <div class="seg" role="group" aria-label="Simulation speed">
+        <button data-s="0" aria-pressed="false" title="Pause">❚❚</button>
+        <button data-s="1" aria-pressed="true" title="15 minutes per second">1×</button>
+        <button data-s="2" aria-pressed="false" title="1 hour per second">4×</button>
+        <button data-s="3" aria-pressed="false" title="4 hours per second">16×</button>
+      </div>
+      <button class="btn" id="tourBtn">▶ Play judge demo</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="stage">
+      <div class="viewport" id="viewport">
+        <canvas id="c" aria-label="3D view of the farm with soil nodes, water system, pond, cold room and hub"></canvas>
+        <div id="labels"></div>
+        <div class="vp-top">
+          <div class="chips" role="group" aria-label="Map layer">
+            <button data-layer="m1" aria-pressed="true">Moisture 15 cm</button>
+            <button data-layer="m2" aria-pressed="false">Moisture 30 cm</button>
+            <button data-layer="st" aria-pressed="false">Soil temp</button>
+            <button data-layer="cov" aria-pressed="false">Radio coverage</button>
+          </div>
+          <div class="chips" role="group" aria-label="Camera">
+            <button data-cam="overview">Overview</button>
+            <button data-cam="map">Map</button>
+            <button data-cam="water">Water</button>
+            <button data-cam="pond">Pond</button>
+            <button data-cam="sel">Selected</button>
+          </div>
+        </div>
+        <div class="caption" id="caption" hidden><strong id="capT"></strong><span id="capB"></span><div class="prog"><span id="capP"></span></div></div>
+        <div class="legendbar"><div id="lgT">Soil moisture 15 cm · as seen by the hub</div><div class="ramp" id="lgR"></div><div class="ends"><span id="lgA">dry 0 %</span><span id="lgB">wet 100 %</span></div></div>
+        <div class="areaPill"><span>Monitored perimeter</span><br><b id="areaV">– ha</b></div>
+      </div>
+
+      <div class="card">
+        <div class="sel-head"><h3 id="selTitle">Selected</h3><span id="selSub"></span></div>
+        <div class="readings" id="readings"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-h"><h3>Hub decisions and alerts</h3><span>from packets that reached the hub</span></div>
+        <div class="alerts" id="alerts"></div>
+      </div>
+
+      <div class="lower">
+        <div class="card">
+          <div class="sec-h"><h3>Last 24 hours at the hub</h3><span>gaps = packets that never arrived</span></div>
+          <div class="legend" id="chLegend"></div>
+          <div class="chart-t">Soil moisture 15 cm (%)</div>
+          <canvas class="chart" id="ch1" aria-label="Moisture at 15 cm per node"></canvas>
+          <div class="chart-t">Soil moisture 30 cm (%)</div>
+          <canvas class="chart" id="ch2" aria-label="Moisture at 30 cm per node"></canvas>
+          <div class="chart-t">Water</div>
+          <div class="legend"><span style="--k:var(--dv-water)"><i></i>Storage tank (%)</span><span style="--k:var(--dv-pond)"><i></i>Pond pH × 10</span><span style="--k:var(--crit)"><i></i>pH 6.5 line</span></div>
+          <canvas class="chart" id="ch3" aria-label="Storage tank level and pond pH"></canvas>
+        </div>
+        <div class="card">
+          <div class="sec-h"><h3>Packets and events</h3><span id="netInfo"></span></div>
+          <div class="logf" role="group" aria-label="Filter events">
+            <button data-f="all" aria-pressed="true">All</button>
+            <button data-f="events" aria-pressed="false">Events only</button>
+            <button data-f="sms" aria-pressed="false">SMS</button>
+          </div>
+          <ol class="log" id="log"></ol>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="tabs" role="tablist" aria-label="Control groups">
+        <button role="tab" data-tab="field" aria-selected="true">Field</button>
+        <button role="tab" data-tab="crop" aria-selected="false">Crop · water</button>
+        <button role="tab" data-tab="water" aria-selected="false">Irrigation</button>
+        <button role="tab" data-tab="treat" aria-selected="false">Treatment</button>
+        <button role="tab" data-tab="pond" aria-selected="false">Pond</button>
+        <button role="tab" data-tab="hub" aria-selected="false">Hub</button>
+      </div>
+
+      <div class="tabpanel" data-panel="field">
+        <div class="card">
+          <h2>Climate condition</h2>
+          <p class="sub">Sets the weather for the whole farm. Each node still reacts to its own soil.</p>
+          <div class="scen" id="scen"></div>
+          <div class="row"><label for="climate">Climate change (warming)</label><output id="climateO">+0.0 °C</output>
+            <input type="range" id="climate" min="0" max="4" step="0.5" value="0"></div>
+        </div>
+        <div class="card">
+          <h2>Weather</h2>
+          <p class="sub">Moving a slider switches to Custom.</p>
+          <div class="row"><label for="eTemp">Mean air temperature</label><output id="eTempO"></output><input type="range" id="eTemp" min="8" max="45" step="1"></div>
+          <div class="row"><label for="eHum">Mean humidity</label><output id="eHumO"></output><input type="range" id="eHum" min="10" max="100" step="1"></div>
+          <div class="row"><label for="eRain">Rainfall</label><output id="eRainO"></output><input type="range" id="eRain" min="0" max="50" step="1"></div>
+          <div class="row"><label for="eCloud">Cloud cover</label><output id="eCloudO"></output><input type="range" id="eCloud" min="0" max="100" step="5"></div>
+        </div>
+        <div class="card">
+          <h2>Field network</h2>
+          <p class="sub">Battery nodes send at low power, so far nodes relay through neighbours. Mains-powered devices relay too.</p>
+          <div class="row"><label for="txp">Node transmit power</label><output id="txpO"></output><input type="range" id="txp" min="2" max="10" step="1" value="5"></div>
+          <label class="sw" for="mesh">Mesh relaying (forward neighbours' packets) <input type="checkbox" id="mesh" checked></label>
+          <div class="btnrow">
+            <button class="btn ghost" id="addNode" type="button">+ Add a node</button>
+            <button class="btn ghost" id="resetNodes" type="button">Reset nodes</button>
+          </div>
+          <div class="nodes" id="nodeList"></div>
+        </div>
+        <div class="card" id="nodeCard">
+          <h2 id="ncTitle">Node</h2>
+          <p class="sub" id="ncSub"></p>
+          <div class="row" style="grid-template-columns:1fr"><label for="ncSoil">Soil at this spot</label><select id="ncSoil"></select></div>
+          <label class="sw" for="ncOn">Node working (untick to simulate a failure) <input type="checkbox" id="ncOn" checked></label>
+          <div class="row"><label for="ncBat">Battery charge</label><output id="ncBatO"></output><input type="range" id="ncBat" min="0" max="100" step="1"></div>
+          <div class="column"><svg id="colSvg" viewBox="0 0 150 170" aria-label="Soil column under the selected node"></svg><p id="colTxt"></p></div>
+          <div id="ovs"></div>
+        </div>
+      </div>
+
+      <div class="tabpanel" data-panel="crop" hidden>
+        <div class="card">
+          <h2>Crop in the field</h2>
+          <p class="sub">Every crop tolerates a different amount of salt, so the water check changes with the crop.</p>
+          <div class="scen" id="cropBtns"></div>
+        </div>
+        <div class="card">
+          <h2>Is the pond water OK for this crop?</h2>
+          <p class="sub">From the latest pond-node packet the hub received.</p>
+          <div id="verdictBox"></div>
+        </div>
+        <div class="card">
+          <h2>Limits used for <span id="limCrop"></span></h2>
+          <div class="kv" id="limKv"></div>
+          <p class="note" style="margin-top:8px">EC: FAO Irrigation &amp; Drainage Paper 29, Table 4 (Ayers &amp; Westcot 1985) — water salinity for 100 % and 90 % yield. pH 6.5–8.4: FAO 29 normal range for irrigation water. Turbidity limits are a drip-clogging check, not a crop limit. Moisture triggers are adjustable defaults.</p>
+        </div>
+        <div class="card">
+          <h2>Same water, every crop</h2>
+          <div class="kv" id="allCrops"></div>
+        </div>
+      </div>
+
+      <div class="tabpanel" data-panel="water" hidden>
+        <div class="card">
+          <h2>Irrigation decision <span class="chip" style="--c:var(--ok)">hub rules</span></h2>
+          <p class="sub">A zone valve opens only when its soil is dry, the stored water is verified for the crop and the tank has water.</p>
+          <div id="checks"></div>
+          <label class="sw" for="eAuto">Hub opens and closes zone valves automatically <input type="checkbox" id="eAuto" checked></label>
+        </div>
+        <div class="card">
+          <h2>Storage tank and zone valves</h2>
+          <p class="sub">10,000 L · holds only water that passed the treatment-tank check. Ultrasonic level, flow meter and pressure sensor on the drip line.</p>
+          <div class="kv" id="tankKv"></div>
+          <div class="valves" id="valveBtns"></div>
+          <div class="report" id="report"><b>Irrigation report</b>No irrigation has finished yet.</div>
+        </div>
+        <div class="card">
+          <h2>Pump switch (relay) <span class="chip" style="--c:var(--info)">remote</span></h2>
+          <p class="sub">Pumps pond water into the treatment tank. Relay on the starter coil; dry-run, phase-failure and runtime cut-offs run in its own firmware. Every app command is confirmed over LoRa.</p>
+          <div class="kv" id="pumpKv"></div>
+          <div class="btnrow"><button class="btn" id="pumpOn" type="button">Start pump</button><button class="btn ghost" id="pumpOff" type="button">Stop pump</button></div>
+          <label class="sw" for="autoRefill">Hub refills storage with verified batches (below 60 %, up to 95 %) <input type="checkbox" id="autoRefill" checked></label>
+          <div class="row"><label for="maxRun">Max runtime limit</label><output id="maxRunO">120 min</output><input type="range" id="maxRun" min="30" max="240" step="10" value="120"></div>
+        </div>
+        <div class="card">
+          <h2>Faults to try</h2>
+          <label class="sw fault" for="fDry">Pond nearly empty (dry run) <input type="checkbox" id="fDry"></label>
+          <label class="sw fault" for="fPhase">Phase failure at the starter <input type="checkbox" id="fPhase"></label>
+          <label class="sw fault" for="fBurst">Burst main pipe <input type="checkbox" id="fBurst"></label>
+          <label class="sw fault" for="fBlock0">Blocked drip line · North zone <input type="checkbox" id="fBlock0"></label>
+          <label class="sw fault" for="fBlock1">Blocked drip line · Middle zone <input type="checkbox" id="fBlock1"></label>
+          <label class="sw fault" for="fBlock2">Blocked drip line · South zone <input type="checkbox" id="fBlock2"></label>
+        </div>
+      </div>
+
+      <div class="tabpanel" data-panel="treat" hidden>
+        <div class="card">
+          <h2>Treatment tank <span class="chip" style="--c:var(--warn)">advanced · prototype</span></h2>
+          <p class="sub">2,000 L mixing tank between the pump and storage. Chemicals never go into the pond.</p>
+          <label class="sw" for="dosing">Automatic pH dosing <input type="checkbox" id="dosing"></label>
+          <div class="nodes" id="tSteps"></div>
+          <div class="kv" id="treatKv" style="margin-top:10px"></div>
+          <div class="chart-t">Tank pH in this batch (green band = 6.5–8.4)</div>
+          <canvas class="chart" id="phChart" aria-label="pH in the treatment tank"></canvas>
+        </div>
+        <div class="card">
+          <h2>Batch log</h2>
+          <ol class="log" id="doseLog" style="max-height:220px"></ol>
+        </div>
+        <div class="card">
+          <h2>Safety rules built in</h2>
+          <p class="note">• Small steps: dose → mix 3 min → measure → repeat. The water's response is learned each step, so no fixed formula is trusted.<br>• Hard cap of 600 mL stock solution per batch; if pH is still out of range the batch is rejected and a lab alkalinity test is requested.<br>• Only verified water moves to storage; rejected batches drain back.<br>• Salinity (EC) and mud cannot be fixed by dosing — only by blending or settling.<br>• Choose acid / alkali after a water test; avoid sodium-based alkali (raises the soil's sodium hazard).</p>
+        </div>
+      </div>
+
+      <div class="tabpanel" data-panel="pond" hidden>
+        <div class="card">
+          <h2>Pond node <span class="chip" style="--c:var(--info)">water quality</span></h2>
+          <p class="sub">Floating probe: pH, EC (K=1), turbidity, DS18B20 water temperature and an optional DO probe. pH and EC are read one after the other so their electrodes do not interfere. Starts the aerator below 4 mg/L by itself.</p>
+          <div class="kv" id="pondKv"></div>
+          <label class="sw" for="aerAuto">Automatic aerator control <input type="checkbox" id="aerAuto" checked></label>
+          <div class="btnrow"><button class="btn ghost" id="aerOn" type="button">Aerator on</button><button class="btn ghost" id="aerOff" type="button">Aerator off</button></div>
+        </div>
+        <div class="card">
+          <h2>Pond events</h2>
+          <div class="scen" id="pondEvt"></div>
+          <label class="sw fault" for="fDrift">pH probe drift +1.1 (needs calibration) <input type="checkbox" id="fDrift"></label>
+          <label class="sw fault" for="fAer">Aerator motor failed <input type="checkbox" id="fAer"></label>
+        </div>
+      </div>
+
+      <div class="tabpanel" data-panel="hub" hidden>
+        <div class="card">
+          <h2>Hub and cloud</h2>
+          <p class="sub">The hub runs every rule on the farm — water check, treatment, valves, SMS — without the internet. The cloud adds the weather forecast and access from home.</p>
+          <label class="sw" for="net">Hub internet (4G) <input type="checkbox" id="net" checked></label>
+          <div class="kv" id="hubKv" style="margin-top:10px"></div>
+          <p class="note" style="margin-top:10px">SMS alerts go to the farmer's phone through the hub's SIM card, even without mobile data.</p>
+        </div>
+      </div>
+
+      <div class="card info" id="info"></div>
+      <p class="note">In Simulation, values come from simple soil, water, pond and radio models. Switch the header to Live to show packets from the BHOOMI backend and send real commands.</p>
+    </aside>
+  </main>
+</div>
+<!-- 3D engine (vendored, MIT) -->
+<script src="../../shared/vendor/three.r128.min.js"></script>
+<!-- twin: field, mesh, pond, pump, tanks, hub rules, crop water check, UI -->
+<script src="js/twin.js"></script>
+<!-- backend connection: live packets + commands -->
+<script src="../../shared/live/bhoomi-live.js"></script>
+<script src="js/live-adapter.js"></script>
+</body>
+</html>

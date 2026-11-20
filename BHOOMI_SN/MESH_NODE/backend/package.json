@@ -1,0 +1,19 @@
+{
+  "name": "bhoomi-twin-backend",
+  "version": "1.0.0",
+  "description": "BHOOMI digital-twin backend: REST + WebSocket server, AM1 packet store and field simulator for the soil-node, multi-node and mesh-hub twins.",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test",
+    "send": "node tools/send-packet.js"
+  },
+  "engines": { "node": ">=18" },
+  "optionalDependencies": {
+    "mqtt": "^5.10.1",
+    "serialport": "^12.0.0"
+  },
+  "license": "MIT"
+}

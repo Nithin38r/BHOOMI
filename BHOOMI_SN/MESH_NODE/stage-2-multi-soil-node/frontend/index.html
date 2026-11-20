@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>BHOOMI Multi Soil Node Twin · Stage 2</title>
+<meta name="description" content="BHOOMI Stage 2: 3D twin of a field with seven LoRa soil nodes, a self-healing mesh and a hub-built soil map, with live data from the BHOOMI backend.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="css/twin.css">
+<link rel="stylesheet" href="../../shared/live/bhoomi-live.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">BHOOMI · Multi soil node mesh · LoRa 433 MHz <br><span id="navLinks"><a href="../../stage-1-single-soil-node/frontend/">Stage 1 · Single node</a> · <b>Stage 2 · Multi-node</b></span></div>
+      <h1>BHOOMI Multi Soil Node Twin</h1>
+      <p>Seven BHOOMI soil nodes across the field, each reading moisture at 15 and 30 cm, soil and air temperature, humidity, light and leaf wetness. Far nodes relay for their neighbours over one LoRa mesh to the farmhouse hub. Try any weather or fault.</p>
+    </div>
+    <div class="ctrl">
+      <div class="clock" id="clock">Day 1 · 06:00</div>
+      <div class="seg" role="group" aria-label="Simulation speed">
+        <button data-s="0" aria-pressed="false" title="Pause">❚❚</button>
+        <button data-s="1" aria-pressed="true" title="15 minutes per second">1×</button>
+        <button data-s="2" aria-pressed="false" title="1 hour per second">4×</button>
+        <button data-s="3" aria-pressed="false" title="4 hours per second">16×</button>
+      </div>
+      <button class="btn" id="tourBtn">▶ Play judge demo</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="stage">
+      <div class="viewport" id="viewport">
+        <canvas id="c" aria-label="3D view of the farm with soil nodes, water system, pond, cold room and hub"></canvas>
+        <div id="labels"></div>
+        <div class="vp-top">
+          <div class="chips" role="group" aria-label="Map layer">
+            <button data-layer="m1" aria-pressed="true">Moisture 15 cm</button>
+            <button data-layer="m2" aria-pressed="false">Moisture 30 cm</button>
+            <button data-layer="st" aria-pressed="false">Soil temp</button>
+            <button data-layer="cov" aria-pressed="false">Radio coverage</button>
+          </div>
+          <div class="chips" role="group" aria-label="Camera">
+            <button data-cam="overview">Overview</button>
+            <button data-cam="map">Map</button>
+            <button data-cam="sel">Selected</button>
+          </div>
+        </div>
+        <div class="caption" id="caption" hidden><strong id="capT"></strong><span id="capB"></span><div class="prog"><span id="capP"></span></div></div>
+        <div class="legendbar"><div id="lgT">Soil moisture 15 cm · as seen by the hub</div><div class="ramp" id="lgR"></div><div class="ends"><span id="lgA">dry 0 %</span><span id="lgB">wet 100 %</span></div></div>
+        <div class="areaPill"><span>Monitored perimeter</span><br><b id="areaV">– ha</b></div>
+      </div>
+
+      <div class="card">
+        <div class="sel-head"><h3 id="selTitle">Selected</h3><span id="selSub"></span></div>
+        <div class="readings" id="readings"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-h"><h3>Hub decisions and alerts</h3><span>from packets that reached the hub</span></div>
+        <div class="alerts" id="alerts"></div>
+      </div>
+
+      <div class="lower">
+        <div class="card">
+          <div class="sec-h"><h3>Last 24 hours at the hub</h3><span>gaps = packets that never arrived</span></div>
+          <div class="legend" id="chLegend"></div>
+          <div class="chart-t">Soil moisture 15 cm (%)</div>
+          <canvas class="chart" id="ch1" aria-label="Moisture at 15 cm per node"></canvas>
+          <div class="chart-t">Soil moisture 30 cm (%)</div>
+          <canvas class="chart" id="ch2" aria-label="Moisture at 30 cm per node"></canvas>
+          <div class="chart-t">Battery charge (%) · red line = low-battery mode</div>
+          <canvas class="chart" id="ch3" aria-label="Battery charge per node"></canvas>
+        </div>
+        <div class="card">
+          <div class="sec-h"><h3>Packets and events</h3><span id="netInfo"></span></div>
+          <div class="logf" role="group" aria-label="Filter events">
+            <button data-f="all" aria-pressed="true">All</button>
+            <button data-f="events" aria-pressed="false">Events only</button>
+            <button data-f="sms" aria-pressed="false">SMS</button>
+          </div>
+          <ol class="log" id="log"></ol>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="tabs" role="tablist" aria-label="Control groups">
+        <button role="tab" data-tab="field" aria-selected="true">Field</button>
+        <button role="tab" data-tab="hub" aria-selected="false">Hub</button>
+      </div>
+
+      <div class="tabpanel" data-panel="field">
+        <div class="card">
+          <h2>Climate condition</h2>
+          <p class="sub">Sets the weather for the whole farm. Each node still reacts to its own soil.</p>
+          <div class="scen" id="scen"></div>
+          <div class="row"><label for="climate">Climate change (warming)</label><output id="climateO">+0.0 °C</output>
+            <input type="range" id="climate" min="0" max="4" step="0.5" value="0"></div>
+        </div>
+        <div class="card">
+          <h2>Weather</h2>
+          <p class="sub">Moving a slider switches to Custom.</p>
+          <div class="row"><label for="eTemp">Mean air temperature</label><output id="eTempO"></output><input type="range" id="eTemp" min="8" max="45" step="1"></div>
+          <div class="row"><label for="eHum">Mean humidity</label><output id="eHumO"></output><input type="range" id="eHum" min="10" max="100" step="1"></div>
+          <div class="row"><label for="eRain">Rainfall</label><output id="eRainO"></output><input type="range" id="eRain" min="0" max="50" step="1"></div>
+          <div class="row"><label for="eCloud">Cloud cover</label><output id="eCloudO"></output><input type="range" id="eCloud" min="0" max="100" step="5"></div>
+        </div>
+        <div class="card">
+          <h2>Field network</h2>
+          <p class="sub">Battery nodes send at low power, so far nodes relay through neighbours. Mains-powered devices relay too.</p>
+          <div class="row"><label for="txp">Node transmit power</label><output id="txpO"></output><input type="range" id="txp" min="2" max="10" step="1" value="5"></div>
+          <label class="sw" for="mesh">Mesh relaying (forward neighbours' packets) <input type="checkbox" id="mesh" checked></label>
+          <div class="btnrow">
+            <button class="btn ghost" id="addNode" type="button">+ Add a node</button>
+            <button class="btn ghost" id="resetNodes" type="button">Reset nodes</button>
+          </div>
+          <div class="nodes" id="nodeList"></div>
+        </div>
+        <div class="card" id="nodeCard">
+          <h2 id="ncTitle">Node</h2>
+          <p class="sub" id="ncSub"></p>
+          <div class="row" style="grid-template-columns:1fr"><label for="ncSoil">Soil at this spot</label><select id="ncSoil"></select></div>
+          <label class="sw" for="ncOn">Node working (untick to simulate a failure) <input type="checkbox" id="ncOn" checked></label>
+          <div class="row"><label for="ncBat">Battery charge</label><output id="ncBatO"></output><input type="range" id="ncBat" min="0" max="100" step="1"></div>
+          <div class="column"><svg id="colSvg" viewBox="0 0 150 170" aria-label="Soil column under the selected node"></svg><p id="colTxt"></p></div>
+          <div id="ovs"></div>
+        </div>
+      </div>
+
+      <div class="tabpanel" data-panel="hub" hidden>
+        <div class="card">
+          <h2>Hub and cloud</h2>
+          <p class="sub">The hub collects every soil packet, builds the moisture map and raises alerts. The cloud adds the weather forecast and access from home.</p>
+          <label class="sw" for="net">Hub internet (4G) <input type="checkbox" id="net" checked></label>
+          <div class="kv" id="hubKv" style="margin-top:10px"></div>
+          <p class="note" style="margin-top:10px">SMS alerts go to the farmer's phone through the hub's SIM card, even without mobile data.</p>
+        </div>
+      </div>
+
+      <div class="card info" id="info"></div>
+      <p class="note">In Simulation, values come from simple soil and radio models. Switch the header to Live to show packets from the BHOOMI backend.</p>
+    </aside>
+  </main>
+</div>
+<!-- 3D engine (vendored, MIT) -->
+<script src="../../shared/vendor/three.r128.min.js"></script>
+<!-- twin: field, nodes, mesh routing, soil map, hub rules, UI -->
+<script src="js/twin.js"></script>
+<!-- backend connection -->
+<script src="../../shared/live/bhoomi-live.js"></script>
+<script src="js/live-adapter.js"></script>
+</body>
+</html>
