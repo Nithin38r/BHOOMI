@@ -1,0 +1,19 @@
+# Backend + Mosquitto MQTT broker. Start: docker compose up --build
+# Twins: http://localhost:8080   MQTT: localhost:1883 (topic bhoomi/<hub>/up)
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports: ["1883:1883"]
+    volumes: ["./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro"]
+  backend:
+    build: { context: ., dockerfile: backend/Dockerfile }
+    ports: ["8080:8080"]
+    environment:
+      MQTT_URL: mqtt://mosquitto:1883
+      SIM: "1"            # set to "0" when real hardware is connected
+      SIM_STAGE: "2"
+      SIM_INTERVAL_S: "15"
+    volumes: ["bhoomi-data:/data"]
+    depends_on: [mosquitto]
+volumes:
+  bhoomi-data:

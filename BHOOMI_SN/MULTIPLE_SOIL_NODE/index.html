@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BHOOMI Digital Twin</title>
+<meta name="description" content="BHOOMI digital twins: single soil node, multi-node field and the LoRa mesh hub, with a live backend.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Landing page: one column of stage cards, same palette as the twins. */
+:root{--bg:#f3f5f2;--panel:#fff;--ink:#18231c;--ink2:#4d5b52;--ink3:#7d8a81;--line:#dfe5df;--accent:#1f7a45;--accent2:#e6f3ea;--ok:#1f7a45;--bad:#b3261e;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1310;--panel:#141c17;--ink:#e7efe9;--ink2:#a9b8ad;--ink3:#77867b;--line:#26332b;--accent:#4cc27e;--accent2:#173323;--ok:#4cc27e;--bad:#ff7b6e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d1310;--panel:#141c17;--ink:#e7efe9;--ink2:#a9b8ad;--ink3:#77867b;--line:#26332b;--accent:#4cc27e;--accent2:#173323;--ok:#4cc27e;--bad:#ff7b6e;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:40px max(16px,env(safe-area-inset-left,0px)) 56px}
+h1{font-size:30px;line-height:1.15;margin:0 0 6px;text-wrap:balance}
+.sub{color:var(--ink2);max-width:62ch;margin:0 0 22px}
+.status{display:inline-flex;align-items:center;gap:8px;font:12px "IBM Plex Mono",ui-monospace,monospace;color:var(--ink2);border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 11px;margin-bottom:26px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ink3)} .dot.ok{background:var(--ok)} .dot.bad{background:var(--bad)}
+.stages{display:grid;gap:12px}
+a.stage{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:16px;align-items:center;text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+a.stage:hover{border-color:var(--accent)} a.stage:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font:600 13px "IBM Plex Mono",monospace;color:var(--accent);background:var(--accent2);border-radius:8px;text-align:center;padding:10px 0}
+.stage h2{margin:0;font-size:17px} .stage p{margin:2px 0 0;color:var(--ink2);font-size:14px}
+.go{font-weight:600;color:var(--accent);white-space:nowrap}
+.stage.soon{opacity:.55;pointer-events:none}
+footer{margin-top:28px;color:var(--ink3);font-size:13px}
+code{font-family:"IBM Plex Mono",monospace;font-size:13px}
+@media (max-width:560px){a.stage{grid-template-columns:48px minmax(0,1fr)}.go{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>BHOOMI Digital Twin</h1>
+  <p class="sub">Interactive 3D twins of the BHOOMI LoRa farm network, built in three stages. Each twin runs its own simulation, and switches to live data when this page is served by the backend.</p>
+  <div class="status"><span class="dot" id="dot"></span><span id="st">Checking backend…</span></div>
+  <div class="stages" id="stages">
+    <a class="stage" href="stage-1-single-soil-node/frontend/"><div class="num">01</div><div><h2>Single soil node</h2><p>One solar LoRa node: 3D cutaway, wake cycle, sensors, battery, hub alerts.</p></div><span class="go">Open →</span></a>
+    <a class="stage soon" href="stage-2-multi-soil-node/frontend/" data-stage="2"><div class="num">02</div><div><h2>Multi soil node field</h2><p>Several nodes on different soils, a self-healing mesh and a hub-built soil map.</p></div><span class="go">Open →</span></a>
+    <a class="stage soon" href="stage-3-mesh-hub/frontend/" data-stage="3"><div class="num">03</div><div><h2>Mesh hub and farm</h2><p>Hub at the farmhouse joining soil nodes, the pond node, tank, pump and irrigation.</p></div><span class="go">Open →</span></a>
+  </div>
+  <footer>Run the backend: <code>cd backend &amp;&amp; npm start</code>, then open <code>http://localhost:8080</code>. API: <code>/api/health</code>.</footer>
+</div>
+<script>
+// show stages that exist in this checkout, and whether the backend is running
+for (const a of document.querySelectorAll('a.stage.soon')) fetch(a.getAttribute('href'), { method: 'HEAD' }).then(r => { if (r.ok) a.classList.remove('soon'); }).catch(() => {});
+const dot = document.getElementById('dot'), st = document.getElementById('st');
+if (location.protocol.startsWith('http')) {
+  fetch('api/health').then(r => r.json()).then(h => { dot.className = 'dot ok'; st.textContent = `Backend v${h.version} · ${h.nodes} node(s) · ${h.packets} packets`; })
+    .catch(() => { dot.className = 'dot bad'; st.textContent = 'Backend offline: twins run in simulation'; });
+} else { st.textContent = 'Opened from disk: twins run in simulation'; for (const a of document.querySelectorAll('a.stage.soon')) a.classList.remove('soon'); }
+</script>
+</body>
+</html>
