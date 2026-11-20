@@ -1,0 +1,6 @@
+/* Live / Simulation switch added to every twin header by bhoomi-live.js.
+   Uses the twin's own colour tokens (--panel, --line, --ok ...) so it follows light and dark themes. */
+.bl-live{display:inline-flex;align-items:center;gap:6px;margin-left:6px}
+.bl-live .bl-btn[disabled]{opacity:.5;cursor:not-allowed}
+.bl-live .bl-txt{font-variant-numeric:tabular-nums}
+@media (max-width:700px){.bl-live{margin-left:0}}
