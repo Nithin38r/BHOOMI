@@ -1,0 +1,13 @@
+{
+  "name": "BHOOMI",
+  "short_name": "BHOOMI",
+  "description": "Live soil, pump and pond readings with alerts for the farmer",
+  "start_url": "/app/",
+  "scope": "/app/",
+  "display": "standalone",
+  "background_color": "#15110d",
+  "theme_color": "#15110d",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

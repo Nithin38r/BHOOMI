@@ -1,0 +1,12 @@
+{
+  "name": "sim",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning sim.ts"
+  },
+  "dependencies": {
+    "mqtt": "5.13.1"
+  }
+}

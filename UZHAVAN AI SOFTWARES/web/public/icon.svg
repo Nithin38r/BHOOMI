@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- BHOOMI mark: a soil profile with two probe depths and a radio arc -->
+  <rect width="32" height="32" rx="7" fill="#f2a516"/>
+  <g fill="none" stroke="#1d1300" stroke-width="2.2" stroke-linecap="round">
+    <path d="M6 15h20"/>
+    <path d="M16 15v11"/>
+    <path d="M16 19.5h6M16 23.5h-6" stroke-width="2.6"/>
+    <path d="M11.5 10a6 6 0 0 1 9 0M8.5 7a10 10 0 0 1 15 0"/>
+  </g>
+</svg>

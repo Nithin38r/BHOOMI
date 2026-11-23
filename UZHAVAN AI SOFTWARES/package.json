@@ -1,0 +1,24 @@
+{
+  "name": "bhoomi-software",
+  "private": true,
+  "version": "0.1.0",
+  "description": "BHOOMI hub server, farmer app and field simulator",
+  "type": "module",
+  "workspaces": ["server", "sim", "web"],
+  "scripts": {
+    "server": "npm run dev -w server",
+    "sim": "npm run start -w sim --",
+    "web": "npm run dev -w web",
+    "build": "npm run build -w web",
+    "start": "npm run start -w server",
+    "typecheck": "tsc -p tsconfig.json --noEmit && npm run typecheck -w web",
+    "test": "node --disable-warning=ExperimentalWarning --test shared/*.test.ts server/src/*.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}
