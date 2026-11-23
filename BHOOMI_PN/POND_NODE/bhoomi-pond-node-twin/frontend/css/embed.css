@@ -1,6 +1,0 @@
-/* A 3D view inside the BHOOMI app shell (?embed=1): the shell already shows the title and the
-   Simulation/Live switch, and the iframe grows to the page height, so the 3D stage gets a fixed height. */
-html.embed .brand, html.embed .bl-live { display: none !important; }
-html.embed .stage { height: 640px !important; }
-html.embed body { overflow: hidden; }
-@media (max-width: 760px) { html.embed .stage { height: 520px !important; } }
