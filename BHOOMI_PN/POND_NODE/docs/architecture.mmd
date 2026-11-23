@@ -1,0 +1,27 @@
+%%{init: {'theme':'base','themeVariables':{'fontFamily':'Helvetica, Arial, sans-serif','fontSize':'15px','primaryColor':'#e2f2f4','primaryBorderColor':'#0f6f7d','primaryTextColor':'#10272b','lineColor':'#5b7f84','clusterBkg':'#f6fafa','clusterBorder':'#9fc3c8'}}}%%
+flowchart LR
+  subgraph L1["Layer 1 · Field hardware (pond)"]
+    BUOY["Floating buoy 7C9E2A<br/>DO · pH · temp · battery"]
+    BANK["Bank controller 3B41F0<br/>aerator rule · contactor · CT"]
+    TANK["Prototype tank node 5D20C7<br/>one ESP32 · air pump"]
+    BUOY -- "T=POND / ACK" --> BANK
+  end
+  subgraph L2["Layer 2 · Edge gateway (farmhouse)"]
+    GW["Gateway A10D55<br/>registry · rules · SMS fallback<br/>offline buffer"]
+  end
+  subgraph L3["Layer 3 · Cloud"]
+    CL["History · oxygen forecast<br/>push notifications · packets.jsonl"]
+  end
+  subgraph L4["Layer 4 · Mobile app + digital twin"]
+    APP["Farmer's phone<br/>EN · TE · TA · one tap"]
+    TWIN["3D digital twin<br/>field pond · prototype tank"]
+  end
+  BANK -- "LoRa 865 MHz" --> GW
+  TANK -- "LoRa / USB" --> GW
+  GW -- "4G / MQTT readings" --> CL
+  CL -- "push · live data" --> APP
+  CL -- "WebSocket" --> TWIN
+  APP -. "command" .-> CL
+  CL -. "T=CMD" .-> GW
+  GW -. "LoRa T=CMD" .-> BANK
+  GW -. "SMS when offline" .-> APP

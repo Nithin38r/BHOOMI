@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BHOOMI Pond Node · Prototype tank view</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Saira+Semi+Condensed:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="css/view.css">
+<link rel="stylesheet" href="../../../shared/live/bhoomi-live.css">
+<link rel="stylesheet" href="../../css/embed.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><b>BHOOMI Pond Node · Digital Twin</b><span>AgriMesh network · one ESP32 · bucket prototype · HackWithAditya 2026</span></div>
+  <div class="clock">
+    <span class="t" id="clk">11:00:00</span>
+    <span class="pill" id="dn">Day</span>
+    <span class="pill info" id="timersPill">Demo timers</span>
+    <button class="btn" id="play">Pause</button>
+    <div class="seg" id="speeds" role="group" aria-label="Simulation speed">
+      <button data-s="1">1×</button><button data-s="5" class="on">5×</button><button data-s="30">30×</button><button data-s="300">300×</button>
+    </div>
+    <button class="btn primary" id="demoBtn">▶ Play judge demo</button>
+  </div>
+</header>
+
+<section class="stage" id="stage">
+  <canvas id="c" aria-label="3D model of the BHOOMI Pond Node prototype on a bench"></canvas>
+  <div id="labels"></div>
+  <div class="hud">
+    <div class="read">
+      <div class="chip big" id="hDO"><small>DO mg/L</small><b>–</b></div>
+      <div class="chip" id="hDOS"><small>DO % sat</small><b>–</b></div>
+      <div class="chip" id="hPH"><small>pH</small><b>–</b></div>
+      <div class="chip" id="hWT"><small>Water °C</small><b>–</b></div>
+    </div>
+    <div class="read">
+      <div class="chip" id="hPUMP"><small>Air pump</small><b>OFF</b></div>
+      <div class="chip" id="hMA"><small>Pump mA</small><b>0</b></div>
+      <div class="chip" id="hMODE"><small>Mode</small><b>AUTO</b></div>
+      <div class="chip" id="hFLT"><small>FLT</small><b>0</b></div>
+    </div>
+  </div>
+  <div class="vtools">
+    <div class="row">
+      <button class="btn on" id="tLabels">Labels</button>
+      <button class="btn on" id="tWires">Wiring</button>
+      <button class="btn" id="tExplode">Explode box</button>
+      <button class="btn" id="tSound">Sound off</button>
+    </div>
+    <label>Box see-through <input type="range" id="xray" min="0.05" max="1" step="0.01" value="0.16"></label>
+    <div class="wlegend" id="wlegend">
+      <span><i style="background:#ff5a4f"></i>3V3/5V</span><span><i style="background:#9aa4a8"></i>GND</span>
+      <span><i style="background:#4f8dff"></i>I²C SDA</span><span><i style="background:#ffd34f"></i>I²C SCL</span>
+      <span><i style="background:#5fdc7a"></i>SPI</span><span><i style="background:#ff9f43"></i>analog</span><span><i style="background:#c77dff"></i>GPIO</span>
+    </div>
+  </div>
+  <div class="hint">Drag to orbit · scroll or pinch to zoom · click a part to inspect it · click the red button on the lid to press it</div>
+  <div class="toasts" id="toasts"></div>
+  <div class="caption" id="caption" hidden>
+    <div class="step" id="capStep">Step 1</div>
+    <h3 id="capTitle">–</h3>
+    <p id="capText">–</p>
+    <div class="bar"><i id="capBar"></i></div>
+    <div class="ctl">
+      <button class="btn" id="capPrev">◀ Prev</button>
+      <button class="btn" id="capPause">Pause</button>
+      <button class="btn" id="capNext">Next ▶</button>
+      <button class="btn" id="capExit">Exit demo</button>
+    </div>
+  </div>
+  <div class="cams" id="cams">
+    <button class="btn" data-cam="overview">Bench overview</button>
+    <button class="btn" data-cam="box">Electronics</button>
+    <button class="btn" data-cam="oled">OLED screen</button>
+    <button class="btn" data-cam="probes">Probes in water</button>
+    <button class="btn" data-cam="pump">Pump + air stone</button>
+    <button class="btn" data-cam="lora">LoRa to hub</button>
+  </div>
+</section>
+
+<main class="deck">
+  <section class="card">
+    <h2>Scenarios</h2>
+    <div class="scn" id="scn"></div>
+  </section>
+
+  <section class="card">
+    <h2>Bucket conditions</h2>
+    <div class="sl"><label for="sHour">Jump to time</label><input id="sHour" type="range" min="0" max="23.75" step="0.25" value="11"><output id="oHour">11:00</output></div>
+    <div class="sl"><label for="sDem">O₂ demand</label><input id="sDem" type="range" min="0" max="1.2" step="0.05"><output id="oDem"></output></div>
+    <div class="sl"><label for="sAmb">Room temp °C</label><input id="sAmb" type="range" min="20" max="38" step="0.5"><output id="oAmb"></output></div>
+    <div class="sl"><label for="sSal">Salinity ppt</label><input id="sSal" type="range" min="0" max="10" step="0.5"><output id="oSal"></output></div>
+    <div class="sl"><label for="sSup">USB supply V</label><input id="sSup" type="range" min="4.2" max="5.2" step="0.01"><output id="oSup"></output></div>
+    <p class="note">O₂ demand stands in for fish or shrimp breathing; in the real bucket test, a spoon of yeast and sugar does the same. The model is illustrative, tuned so a full cycle fits in a few minutes.</p>
+  </section>
+
+  <section class="card">
+    <h2>Fault injection</h2>
+    <div class="tog" id="faults"></div>
+  </section>
+
+  <section class="card">
+    <h2>Node controls</h2>
+    <div class="sub">Physical button on the lid</div>
+    <div class="physbtn">
+      <button class="btn" id="pressShort">Press (AUTO → ON → OFF)</button>
+      <button class="btn" id="pressLong">Hold 2 s (mute alarm)</button>
+    </div>
+    <div class="sub">Timers</div>
+    <div class="physbtn">
+      <button class="btn on" id="tmDemo">Demo timers</button>
+      <button class="btn" id="tmReal">Real pond timers</button>
+    </div>
+    <div class="sub">Hub commands over LoRa <span class="pill ok" id="hubPill">Hub online</span></div>
+    <div class="cmdrow">
+      <button class="btn" data-cmd="ON">AER=ON</button><button class="btn" data-cmd="OFF">AER=OFF</button><button class="btn" data-cmd="AUTO">AER=AUTO</button>
+    </div>
+    <div class="cmdrow">
+      <label for="cLo">ON&lt;</label><input id="cLo" type="number" min="2" max="8" step="0.1" value="4.0">
+      <label for="cHi">OFF&gt;</label><input id="cHi" type="number" min="2" max="9" step="0.1" value="6.0">
+      <button class="btn" id="cSet">Send</button>
+    </div>
+    <div class="cmdrow"><button class="btn" id="cCal">CAL=?</button><button class="btn" id="cStat">STATUS=?</button></div>
+  </section>
+
+  <section class="card span2">
+    <h2><span id="chartTitle">Last 10 minutes</span> <span class="legend">
+      <span><i style="background:var(--accent)"></i>DO</span><span><i style="background:var(--mute)"></i>saturation</span>
+      <span><i style="background:var(--amber)"></i>pH</span><span><i style="background:color-mix(in srgb,var(--ok) 45%,transparent);height:8px"></i>pump ON</span>
+      <span><i style="background:color-mix(in srgb,var(--crit) 45%,transparent);height:8px"></i>ON, no current</span></span></h2>
+    <canvas id="chart" aria-label="DO, saturation, pH and pump state over time"></canvas>
+  </section>
+
+  <section class="card">
+    <h2>Firmware state</h2>
+    <dl class="kv" id="fw"></dl>
+    <p class="note">Same variables and rules as BhoomiPondNode.ino v2.1.</p>
+  </section>
+
+  <section class="card">
+    <h2>Judge numbers</h2>
+    <dl class="kv" id="judge"></dl>
+    <div class="sub">Fault codes</div>
+    <div class="tbl"><table><tbody id="fltTbl"></tbody></table></div>
+  </section>
+
+  <section class="card span2">
+    <h2>LoRa packet log <span class="pill info">865.0625 MHz · SF9 · BW125 · sync 0x12</span></h2>
+    <div class="log" id="log" aria-live="polite"></div>
+  </section>
+
+  <section class="card span2 insp" id="insp">
+    <h2>Component inspector</h2>
+    <div class="plist" id="plist"></div>
+    <div id="card"></div>
+  </section>
+
+  <section class="card span4">
+    <h2>ESP32 pin map</h2>
+    <div class="tbl"><table id="pinTbl"></table></div>
+  </section>
+</main>
+
+<script src="../../vendor/three.r128.min.js"></script>
+<script src="../../vendor/OrbitControls.r128.js"></script>
+<script src="../../../shared/model/tank-model.cjs"></script>
+<script src="js/view.js"></script>
+<script src="../../../shared/live/bhoomi-live.js"></script>
+<script src="../../js/view-bridge.js"></script>
+<script src="js/live-adapter.js"></script>
+</body>
+</html>
