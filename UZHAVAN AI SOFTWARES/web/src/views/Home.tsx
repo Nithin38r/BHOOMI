@@ -3,7 +3,7 @@ import type { Device, Lang, State } from "../../../shared/api.ts";
 import { fieldLabel, type TFn } from "../i18n.ts";
 import { api, isOnline } from "../live.ts";
 import { AlertItem, Card, CommandStatus, num } from "../ui.tsx";
-import { Gauge, Num, Ring, SoilCore, useDark } from "../viz.tsx";
+import { Gauge, Num, rampGradient, Ring, SoilCore, useDark } from "../viz.tsx";
 
 interface P { s: State; t: TFn; lang: Lang; now: number; speak: (s: string) => void; openNode: (id: string) => void; go: (tab: string) => void }
 
@@ -70,7 +70,7 @@ export function StatusIcon({ tone }: { tone: string }) {
 function Cores({ soil, s, t, now, openNode }: { soil: Device[]; s: State; t: TFn; now: number; openNode: (id: string) => void }) {
   const dark = useDark();
   return (
-    <Card title={t("field_cores")} aside={<span className="ramp-key" aria-hidden="true"><span>{t("dry")}</span><i /><span>{t("wet")}</span></span>}>
+    <Card title={t("field_cores")} aside={<span className="ramp-key" aria-hidden="true"><span>{t("dry")}</span><i style={{ background: rampGradient(dark) }} /><span>{t("wet")}</span></span>}>
       <p className="muted small">{t("cores_sub")}</p>
       <div className="cores" role="list">
         <div className="core-scale" aria-hidden="true"><span>0</span><span>15 cm</span><span>30 cm</span></div>

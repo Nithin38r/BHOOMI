@@ -18,11 +18,16 @@ export function useDark() {
 }
 
 /**
- * Soil moisture as a single-hue sequential blue ramp: more water = more ink.
+ * Soil moisture as a single-hue sequential blue ramp: more water = more contrast with the page.
  * Light mode runs light→dark; dark mode is its own selection, running dark→light so wet still stands out.
+ * Both ramps step evenly in lightness (about 10 L* per step), so 8 % and 28 % read as clearly different.
+ * The scale covers 0–80 %: wetter than that is waterlogged and raises its own alert.
  */
 const RAMP = ["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b"];
-const RAMP_DARK = ["#184f95", "#1c5cab", "#256abf", "#2a78d6", "#5598e7", "#86b6ef", "#b7d3f6"];
+const RAMP_DARK = ["#1d3a5f", "#1f4f86", "#2566ad", "#2f7fd2", "#5a9be6", "#8dbbf0", "#c2dbf8"];
+const RAMP_MAX = 80;
+/** The same ramp as a CSS gradient, dry on the left, for the key next to the soil cores. */
+export const rampGradient = (dark: boolean) => `linear-gradient(90deg, ${(dark ? RAMP_DARK : RAMP).join(", ")})`;
 function mix(a: string, b: string, t: number) {
   const p = (h: string) => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   const [x, y] = [p(a), p(b)];
@@ -30,7 +35,7 @@ function mix(a: string, b: string, t: number) {
 }
 export function moistureColor(m: number | null, dark: boolean): string {
   if (m == null) return "var(--sunk)";
-  const r = dark ? RAMP_DARK : RAMP, f = Math.max(0, Math.min(1, m / 100)) * (r.length - 1), i = Math.min(r.length - 2, Math.floor(f));
+  const r = dark ? RAMP_DARK : RAMP, f = Math.max(0, Math.min(1, m / RAMP_MAX)) * (r.length - 1), i = Math.min(r.length - 2, Math.floor(f));
   return mix(r[i], r[i + 1], f - i);
 }
 

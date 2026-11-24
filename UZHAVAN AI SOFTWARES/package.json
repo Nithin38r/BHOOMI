@@ -4,8 +4,13 @@
   "version": "0.1.0",
   "description": "BHOOMI hub server, farmer app and field simulator",
   "type": "module",
-  "workspaces": ["server", "sim", "web"],
+  "workspaces": [
+    "server",
+    "sim",
+    "web"
+  ],
   "scripts": {
+    "demo": "node --disable-warning=ExperimentalWarning scripts/demo.ts",
     "server": "npm run dev -w server",
     "sim": "npm run start -w sim --",
     "web": "npm run dev -w web",

@@ -28,7 +28,7 @@ const en = {
   rain_skip: "Skip irrigation when rain chance is at least (%)", do_low: "Pond oxygen alarm below (mg/L)", farm_name: "Farm name",
   gateway_help: "Gateway connection", app_lang: "App language",
   farm_now: "Farm now", topsoil: "Topsoil, average", field_cores: "Soil at a glance",
-  cores_sub: "Each column is one node: 15 cm on top, 30 cm below. Darker blue means wetter.", dry: "dry", wet: "wet",
+  cores_sub: "Each column is one node: 15 cm on top, 30 cm below. The colour shows moisture, from dry to wet as in the key.", dry: "dry", wet: "wet",
   pond_oxygen: "Pond oxygen", rain_short: "Rain chance, 12 h", oxy_ok: "Healthy", oxy_low: "Low", oxy_crit: "Critical",
   flowing: "Water flowing", temperature: "Temperature", mode: "Mode",
 };
@@ -60,7 +60,7 @@ const te: Record<Key, string> = {
   rain_skip: "వర్షం అవకాశం కనీసం ఇంత ఉంటే నీరు వద్దు (%)", do_low: "చెరువు ఆక్సిజన్ అలారం (mg/L కంటే తక్కువ)", farm_name: "పొలం పేరు",
   gateway_help: "గేట్‌వే కనెక్షన్", app_lang: "యాప్ భాష",
   farm_now: "ఇప్పుడు పొలం", topsoil: "పై మట్టి, సగటు", field_cores: "నేల తేమ ఒక్క చూపులో",
-  cores_sub: "ప్రతి స్తంభం ఒక నోడ్: పైన 15 సెం.మీ., కింద 30 సెం.మీ. ముదురు నీలం అంటే ఎక్కువ తేమ.", dry: "పొడి", wet: "తడి",
+  cores_sub: "ప్రతి స్తంభం ఒక నోడ్: పైన 15 సెం.మీ., కింద 30 సెం.మీ. రంగు తేమను చూపిస్తుంది, సూచికలో ఉన్నట్లు పొడి నుంచి తడి వరకు.", dry: "పొడి", wet: "తడి",
   pond_oxygen: "చెరువు ఆక్సిజన్", rain_short: "వర్షం అవకాశం, 12 గం", oxy_ok: "సరిపడా", oxy_low: "తక్కువ", oxy_crit: "ప్రమాదం",
   flowing: "నీరు ప్రవహిస్తోంది", temperature: "ఉష్ణోగ్రత", mode: "విధానం",
 };
@@ -91,7 +91,7 @@ const ta: Record<Key, string> = {
   rain_skip: "மழை வாய்ப்பு குறைந்தது இவ்வளவு இருந்தால் நீர் வேண்டாம் (%)", do_low: "குள ஆக்ஸிஜன் அலாரம் (mg/L க்குக் கீழ்)", farm_name: "பண்ணையின் பெயர்",
   gateway_help: "கேட்வே இணைப்பு", app_lang: "செயலி மொழி",
   farm_now: "இப்போது வயல்", topsoil: "மேல் மண், சராசரி", field_cores: "மண் ஈரம் ஒரே பார்வையில்",
-  cores_sub: "ஒவ்வொரு தூணும் ஒரு நோட்: மேலே 15 செ.மீ., கீழே 30 செ.மீ. அடர் நீலம் என்றால் அதிக ஈரம்.", dry: "வறண்ட", wet: "ஈரமான",
+  cores_sub: "ஒவ்வொரு தூணும் ஒரு நோட்: மேலே 15 செ.மீ., கீழே 30 செ.மீ. நிறம் ஈரப்பதத்தைக் காட்டுகிறது, குறியீட்டில் உள்ளது போல் வறண்டது முதல் ஈரம் வரை.", dry: "வறண்ட", wet: "ஈரமான",
   pond_oxygen: "குள ஆக்ஸிஜன்", rain_short: "மழை வாய்ப்பு, 12 மணி", oxy_ok: "போதுமானது", oxy_low: "குறைவு", oxy_crit: "ஆபத்து",
   flowing: "நீர் பாய்கிறது", temperature: "வெப்பநிலை", mode: "முறை",
 };

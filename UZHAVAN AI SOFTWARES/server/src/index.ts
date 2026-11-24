@@ -46,3 +46,10 @@ setInterval(() => hub.tick(Date.now()), 15_000);
 const stop = () => { console.log("shutting down"); app.close().finally(() => process.exit(0)); };
 process.on("SIGINT", stop);
 process.on("SIGTERM", stop);
+// Started by `npm run demo`: exit when the launcher goes away, even if it was killed hard
+// (Windows does not stop child processes with their parent). Its pipe to us closes then.
+if (process.env.BHOOMI_EXIT_WITH_PARENT === "1") {
+  process.stdin.on("end", stop);
+  process.stdin.on("error", stop);
+  process.stdin.resume();
+}

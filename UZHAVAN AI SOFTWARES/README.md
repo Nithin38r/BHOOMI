@@ -20,7 +20,13 @@ From this folder:
 npm install
 ```
 
-Three terminals:
+**Quickest: one command** that builds the app, starts the hub and the simulator, and opens the landing page at http://localhost:8080 (farmer app at http://localhost:8080/app/). Press the simulator keys in the same window; `q` stops everything. The walkthrough for the demo video is in [docs/DEMO.md](docs/DEMO.md).
+
+```bash
+npm run demo
+```
+
+**For development**, three terminals (the app reloads as you edit):
 
 ```bash
 npm run server
@@ -54,6 +60,8 @@ The simulator also sets a matching simulated rain forecast; the app's weather ca
 | `web/` | React + Vite: the landing page at `/` (GSAP scroll reveals, Lenis smooth scroll, to-scale soil-node drawing) and the farmer app at `/app/`, installable on a phone. |
 | `sim/` | Field simulator that sends and answers exactly like the firmware (soil-water, pond-oxygen and pump models from our digital twins). |
 | `docs/GATEWAY_API.md` | **Contract for the hub gateway**: packet fields, fault codes, MQTT topics, commands and ACKs, SMS outbox. |
+| `docs/DEMO.md` | Demo video walkthrough (under 5 minutes) with the simulator keys to press. |
+| `scripts/demo.ts` | `npm run demo`: one-command demo launcher. |
 
 ### Rules the hub runs (`server/src/rules.ts`)
 - **Irrigation:** topsoil (15 cm) below 30 % and no rain in the forecast → pump ON; 30 cm reaches 72 %, rain starts, or waterlogging → pump OFF. Rain chance ≥ 60 % in the next 12 h → irrigation postponed. A farmer's own tap overrides automation for 30 minutes.
