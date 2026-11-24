@@ -1,0 +1,31 @@
+Part,Qty,Notes
+Raspberry Pi 4 Model B (2 GB or more),1,Hub computer: backend + dashboard + alarm + SMS
+microSD card 32 GB (A1/A2),1,Raspberry Pi OS (64-bit) Bookworm
+Official Raspberry Pi 5V 3A USB-C supply,1,
+UPS HAT for Pi 4 with 2x18650 cells (e.g. Waveshare UPS HAT),1,Keeps the hub running through power cuts; INA219 on I2C 0x42
+40-pin stacking header,1,So GPIO stays reachable above the UPS HAT
+10.1 inch HDMI IPS touch display 1280x800,1,Main live dashboard (full layout needs 1280 px or wider). Any 1080p HDMI monitor also works
+micro-HDMI to HDMI cable,1,Pi HDMI0 to display
+USB cable for display touch/power,1,
+0.96 inch SSD1306 OLED I2C (0x3C),1,Mini status display; works even if HDMI is off
+DS3231 RTC module + CR2032,1,Correct time without internet (I2C 0x68)
+4G LTE modem SIM7600 or A7670 (USB) + 2 antennas,1,Internet for remote monitoring + SMS (ask anytime + daily report)
+SIM card with SMS pack,1,Any operator; 4G modem also works on 4G-only SIMs
+ESP32-DevKitC 38-pin,1,Radio gateway (USB serial to the Pi)
+RFM95W LoRa 868/915 version + breakout + 865 MHz antenna,1,Pond Node band
+SX1278 Ra-02 433 MHz + antenna,1,Current Soil Node band
+5V active buzzer,1,BZ1
+2N2222 NPN transistor,1,Q1 buzzer driver
+1 kOhm resistor,1,R1
+1N4148 diode,1,Only if the buzzer is magnetic type
+5V relay module (optocoupled),1,Switches the siren
+12V siren,1,
+12V 2A adapter,1,Siren power (separate from the Pi)
+LED green / yellow / red 5 mm,3,
+330 Ohm resistor,3,LED resistors
+Tactile push button,2,Mute/acknowledge and safe shutdown
+PAM8403 amplifier board,1,Voice alerts
+Speaker 4 Ohm 3 W,1,
+3.5 mm audio cable,1,Pi audio jack to amplifier
+Perfboard + female headers + jumper wires,1 set,
+Enclosure (vented) for the hub,1,
