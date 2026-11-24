@@ -357,7 +357,7 @@ Full specs: [soil packet format](BHOOMI_SN/MESH_NODE/docs/packet-format.md) · [
 | UZHAVAN AI software | ✅ Runs end to end with the simulator · ⏳ not yet run against real nodes |
 | Digital twins (soil stages 1–3, pond) | ✅ Running with live backends |
 | Live dashboard, alarm, SMS services | ✅ Tested on demo data · ⏳ Pi wiring and 4G modem to test |
-| Enclosure | 📝 Designed in Fusion 360, not printed yet |
+| Enclosure | 📝 Designed in Fusion 360 |
 | Soil Node PRO | 📝 Concept and schematics |
 
 **Notes:**
