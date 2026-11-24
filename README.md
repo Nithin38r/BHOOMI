@@ -29,24 +29,39 @@ Pump/valves ┘                    │
 
 ## Repository
 ```
-soil-node/     ESP32 firmware, wiring guide, 3D-printable enclosure (STEP/STL)
-pond-node/     Tank prototype + full-pond buoy/bank firmware, wiring, project pack
-irrigation/    Water-quality crop rules, treatment-tank logic, pump/valve control
-hub/           LoRa gateway receiver
-twins/         Interactive 3D digital twins (open in Chrome/Edge)
-docs/          Project packs, pin maps, images
+UZHAVAN AI SOFTWARES/   The software: hub server, farmer app, landing page and field simulator
+BHOOMI_PN/              Pond Node: firmware (tank prototype, buoy, bank controller, pond gateway),
+                        docs, digital twins of the tank and the full pond
+BHOOMI_SN/              Soil Node: power and battery-life study, sensor wiring and power plan,
+                        digital twins (single node, multiple nodes, mesh + hub bridge firmware)
+3D_FUSION_FILES/        Enclosure CAD (STEP) and renders, print-ready parts in FINAL_PRINT/
+DIGITAL_TWIN/, OVERALL_ELECTRONICS/, GENERAL/
+                        Placeholders, still empty (the twins live in BHOOMI_PN/ and BHOOMI_SN/)
 ```
 
+## Run the software
+Needs Node.js 22.18 or newer. In `UZHAVAN AI SOFTWARES/`:
+```bash
+npm install
+npm run demo
+```
+This starts the hub server and a field simulator that sends packets in the same format as our firmware, then opens the landing page at http://localhost:8080 (farmer app at http://localhost:8080/app/). Details and the demo walkthrough: [`UZHAVAN AI SOFTWARES/README.md`](UZHAVAN%20AI%20SOFTWARES/README.md) and [`docs/DEMO.md`](UZHAVAN%20AI%20SOFTWARES/docs/DEMO.md).
+
 ## Digital twins
-Interactive 3D models with live readings, fault injection and a guided judge demo:
-- Single Soil Node · Multi Soil Node mesh · Field + Irrigation
-- Pond Node (tank prototype) · Full Pond (70 × 40 m)
+Interactive 3D models with live readings, fault injection and a guided judge demo (open the `index.html` files in Chrome or Edge):
+- Soil: `BHOOMI_SN/INDIVIDUAL_SOIL_NODE/`, `BHOOMI_SN/MULTIPLE_SOIL_NODE/`, `BHOOMI_SN/MESH_NODE/`
+- Pond: `BHOOMI_PN/frontend/` (tank prototype and full pond, 70 × 40 m)
 
 ## Status (honest)
-- Firmware compiles and passes a syntax check; hardware testing is in progress.
-- The twins use illustrative models; real numbers will come from bench and field trials.
+- Pond node and gateway firmware compile and pass a syntax check; hardware testing is in progress.
+- Soil node firmware (v2.2) is still to be added to `BHOOMI_SN/`.
+- The software runs end to end with the simulator; it has not yet been run against the real nodes.
+- The twins and the simulator use illustrative models; real numbers will come from bench and field trials.
 - Crop water limits follow FAO Irrigation & Drainage Paper 29.
 - Mains wiring on the pond and pump side must be done by a licensed electrician.
+
+## Use of AI tools
+As the hackathon rules require, we disclose that the team used AI coding assistants while writing parts of the software and documentation. Every part was reviewed by the team, and we can explain and modify all of it.
 
 ## Team
 Team BHOOMI · HackWithAditya 2026
