@@ -53,7 +53,7 @@ UZHAVAN AI is built to be **explainable**: every decision can be traced to a rea
 | **Spray breakdown model** | Safe-harvest timer from the label's waiting period, adjusted by soil temperature and moisture (never shorter than the label) | Spray log + Soil Node | UZHAVAN AI app |
 | **Soil map** | Interpolates every node's readings into one field map (moisture, temperature, radio coverage) | All Soil Nodes | Soil twin stage 2 |
 | **Voice and language** | Spoken and written alerts in English, Telugu and Tamil (Hindi and Kannada on the live screen) | Alert codes | Web Speech API (app) · espeak-ng (Pi) · Unicode SMS |
-| **Leaf-disease scan (ZAAR-001)** | Our previous project: tells what is wrong with a leaf. BHOOMI tells what is happening in the soil, air and water around it, and asks for a ZAAR scan when disease risk is high | Leaf photo | Previous project |
+| **Leaf-disease scan** | Our previous project: tells what is wrong with a leaf. BHOOMI tells what is happening in the soil, air and water around it, and asks for a scan when disease risk is high | Leaf photo | Previous project |
 
 ### ⚙️ Hardware and firmware
 | Layer | Technology |
