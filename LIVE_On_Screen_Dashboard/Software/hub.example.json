@@ -1,0 +1,33 @@
+{
+  "hub_url": "http://localhost:8080",
+  "poll_seconds": 3,
+  "alarm": {
+    "siren_active_high": false,
+    "siren_max_on_minutes": 5,
+    "mute_minutes": 15,
+    "warning_beep_every_minutes": 5,
+    "backend_lost_after_seconds": 60,
+    "voice": true,
+    "voice_language": "en",
+    "voice_repeat_critical_minutes": 2,
+    "oled": true
+  },
+  "sms": {
+    "modem_port": "/dev/bhoomi-modem",
+    "baud": 115200,
+    "daily_report_time": "07:00",
+    "registered_numbers": [
+      "+91XXXXXXXXXX"
+    ],
+    "daily_report_numbers": [
+      "+91XXXXXXXXXX"
+    ],
+    "alert_sms_levels": [
+      "crit"
+    ],
+    "max_sms_per_day": 60,
+    "status_file": "/run/bhoomi/sms_status.json",
+    "language": "en",
+    "status_port": 8091
+  }
+}

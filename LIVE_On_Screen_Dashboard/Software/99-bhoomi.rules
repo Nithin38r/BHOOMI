@@ -1,0 +1,10 @@
+# /etc/udev/rules.d/99-bhoomi.rules  -> fixed port names that survive reboots
+# Find your IDs with:  lsusb   and   udevadm info -a -n /dev/ttyUSB0 | grep -E 'idVendor|idProduct|bInterfaceNumber'
+
+# ESP32 gateway (CP210x shown; CH340 is idVendor 1a86, idProduct 7523)
+SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="bhoomi-gateway"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", SYMLINK+="bhoomi-gateway"
+
+# SIM7600 4G modem: the AT command port is USB interface 02 (usually /dev/ttyUSB2)
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1e0e", ATTRS{idProduct}=="9001", ENV{ID_USB_INTERFACE_NUM}=="02", SYMLINK+="bhoomi-modem"
+# A7670: check its idProduct and AT interface with udevadm, then copy the line above and edit it

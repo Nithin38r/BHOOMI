@@ -1,0 +1,14 @@
+[Unit]
+Description=BHOOMI hub alarm (LEDs, buzzer, siren, voice, OLED)
+After=network-online.target
+
+[Service]
+User=bhoomi
+SupplementaryGroups=gpio i2c audio
+WorkingDirectory=/opt/bhoomi/software/services
+ExecStart=/usr/bin/python3 alarm_service.py --config /etc/bhoomi/hub.json
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BHOOMI Smart Farm Monitor</title>
+<meta name="theme-color" content="#0b1310">
+<link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#0b1310; --bg2:#0f1a16; --card:#13201b; --card2:#172720; --line:#24382f; --line2:#2f4a3e;
+  --tx:#e8f1ec; --mut:#8ea79a; --dim:#5f776b;
+  --ok:#43c07f; --watch:#e3c34b; --warn:#f0903a; --crit:#ef5350; --info:#56a8e8; --cold:#5fb7d4;
+  --brand:#a4e05a; --gold:#e8b04a; --water:#3d9be0;
+  --r:1rem;
+  --font:"Noto Sans","Noto Sans Telugu","Noto Sans Devanagari","Noto Sans Tamil","Noto Sans Kannada",system-ui,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{font-size:calc(100vw / 120)}
+@media (max-width:1100px){html{font-size:14px}}
+body{margin:0;background:radial-gradient(1200px 600px at 15% -10%,#163126 0,transparent 60%),radial-gradient(900px 500px at 110% 110%,#13283a 0,transparent 55%),var(--bg);
+  color:var(--tx);font-family:var(--font);overflow:hidden;height:100vh;-webkit-font-smoothing:antialiased}
+@media (max-width:1100px){body{overflow:auto;height:auto}}
+button{font-family:inherit;cursor:pointer}
+.app{display:grid;grid-template-rows:auto 1fr auto;height:100vh;gap:.75rem;padding:.75rem 1rem}
+@media (max-width:1100px){.app{height:auto}}
+
+/* ---------- header ---------- */
+header{display:flex;align-items:center;gap:1.2rem}
+.brand{display:flex;align-items:center;gap:.8rem;min-width:0}
+.logo{width:3.1rem;height:3.1rem;flex:none}
+.bname{font-weight:700;font-size:1.75rem;letter-spacing:.14em;line-height:1}
+.bname span{color:var(--brand)}
+.bsub{color:var(--mut);font-size:.95rem;margin-top:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clock{margin-left:auto;text-align:right}
+.clock .t{font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.clock .d{color:var(--mut);font-size:.9rem;margin-top:.2rem}
+.pill{display:inline-flex;align-items:center;gap:.45rem;padding:.35rem .8rem;border-radius:2rem;font-weight:700;font-size:.85rem;letter-spacing:.08em;border:1px solid var(--line2);background:var(--card)}
+.pill .dot{width:.6rem;height:.6rem;border-radius:50%;background:var(--dim)}
+.pill.live .dot{background:var(--ok);box-shadow:0 0 0 0 rgba(67,192,127,.6);animation:pulse 2s infinite}
+.pill.demo{border-color:#6b5a26;color:var(--gold)} .pill.demo .dot{background:var(--gold)}
+.pill.off{border-color:#6b2a2a;color:var(--crit)} .pill.off .dot{background:var(--crit)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(67,192,127,.55)}70%{box-shadow:0 0 0 .6rem rgba(67,192,127,0)}100%{box-shadow:0 0 0 0 rgba(67,192,127,0)}}
+.langs{display:flex;gap:.3rem;background:var(--card);border:1px solid var(--line);border-radius:2rem;padding:.25rem}
+.langs button{background:none;border:0;color:var(--mut);font-size:.95rem;padding:.3rem .65rem;border-radius:1.5rem;font-weight:600}
+.langs button.on{background:var(--brand);color:#10200f}
+.langs button.rot{font-size:1rem}
+.langs button.rot.on{background:var(--gold)}
+.score{display:flex;align-items:center;gap:.6rem}
+.score svg{width:3.4rem;height:3.4rem}
+.score .lbl{font-size:.8rem;color:var(--mut);max-width:6rem;line-height:1.15}
+
+/* ---------- layout ---------- */
+main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.42fr) minmax(0,1.05fr);gap:.75rem;min-height:0}
+@media (max-width:1100px){main{grid-template-columns:1fr}}
+.col{display:flex;flex-direction:column;gap:.75rem;min-height:0;min-width:0}
+.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:var(--r);padding:.8rem .95rem;min-height:0;position:relative}
+.card h2{margin:0;font-size:1.08rem;font-weight:700;display:flex;align-items:center;gap:.55rem}
+.card h2 .ic{width:1.35rem;height:1.35rem;flex:none}
+.card h2 .sub{margin-left:auto;white-space:nowrap;font-weight:400;font-size:.82rem;color:var(--mut);display:flex;gap:.7rem;align-items:center}
+.grow{flex:1}
+.mut{color:var(--mut)} .mono{font-family:var(--mono)}
+.chip{display:inline-flex;align-items:center;gap:.3rem;font-size:.78rem;padding:.12rem .5rem;border-radius:1rem;background:var(--bg2);border:1px solid var(--line);color:var(--mut);white-space:nowrap}
+.chip.ok{color:var(--ok);border-color:#24553c}.chip.watch{color:var(--watch);border-color:#5d5222}
+.chip.warn{color:var(--warn);border-color:#5e3d1e}.chip.crit{color:var(--crit);border-color:#5e2424}
+.chip.info{color:var(--info);border-color:#21445e}.chip.cold{color:var(--cold);border-color:#21485a}
+
+/* ---------- gauges ---------- */
+.gauges{display:grid;gap:.5rem;margin-top:.6rem}
+.g2{grid-template-columns:repeat(2,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:700px){.g4{grid-template-columns:repeat(2,1fr)}}
+.gauge{background:var(--bg2);border:1px solid var(--line);border-radius:.8rem;padding:.45rem .4rem .5rem;text-align:center;position:relative;transition:border-color .4s}
+.gauge.st-crit{border-color:#7a2a2a;box-shadow:inset 0 0 1.2rem rgba(239,83,80,.18)}
+.gauge.st-warn{border-color:#6e4520}
+.gauge .gt{font-size:.82rem;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.gauge svg{width:100%;height:auto;display:block}
+.gauge .needle{transition:transform 1.1s cubic-bezier(.2,.9,.25,1.15);transform-box:view-box;transform-origin:100px 96px}
+.gauge .valarc{transition:stroke-dashoffset 1.1s cubic-bezier(.2,.9,.25,1.05),stroke .4s}
+.gauge .gs{margin-top:-.1rem}
+.gauge.na svg{opacity:.35}
+
+/* ---------- pond ---------- */
+.aer{display:flex;align-items:center;gap:.8rem;margin-top:.6rem;padding:.55rem .75rem;border-radius:.8rem;background:var(--bg2);border:1px solid var(--line)}
+.aer .fan{width:2.6rem;height:2.6rem;flex:none}
+.aer.run .fan .blades{animation:spin .9s linear infinite;transform-origin:20px 20px}
+.aer.run{border-color:#25563d;background:linear-gradient(90deg,rgba(67,192,127,.12),var(--bg2))}
+.aer.fault{border-color:#7a2a2a;background:linear-gradient(90deg,rgba(239,83,80,.14),var(--bg2))}
+@keyframes spin{to{transform:rotate(360deg)}}
+.aer .st{font-size:1.25rem;font-weight:700}
+.aer .meta{font-size:.82rem;color:var(--mut);white-space:nowrap}
+.aer .st{white-space:nowrap}
+.ctl{margin-left:auto;display:flex;gap:.3rem}
+.ctl button{background:var(--card);border:1px solid var(--line2);color:var(--tx);border-radius:.5rem;padding:.35rem .6rem;font-size:.8rem;font-weight:700}
+.ctl button.sel{background:var(--brand);color:#10200f;border-color:var(--brand)}
+.ctl button:disabled{opacity:.4;cursor:default}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.55rem}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:.7rem;padding:.45rem .6rem}
+.stat .k{font-size:.74rem;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat .v{font-size:1.2rem;font-weight:700;font-variant-numeric:tabular-nums;margin-top:.1rem}
+.stat .v small{font-size:.72rem;color:var(--mut);font-weight:400}
+.chart{width:100%;display:block;margin-top:.35rem}
+.chart-h{font-size:.8rem;color:var(--mut);margin-top:.55rem;display:flex;justify-content:space-between}
+
+/* ---------- soil ---------- */
+.tabs{display:flex;gap:.4rem;margin-top:.6rem;flex-wrap:wrap}
+.tab{background:var(--bg2);border:1px solid var(--line);color:var(--mut);border-radius:.6rem;padding:.35rem .65rem;font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:.4rem;position:relative;overflow:hidden}
+.tab.on{color:var(--tx);border-color:var(--brand);background:#1a2c1c}
+.tab .sd{width:.55rem;height:.55rem;border-radius:50%;background:var(--ok)}
+.tab .bar{position:absolute;left:0;bottom:0;height:2px;background:var(--brand);width:0}
+.tab.on .bar{animation:fill linear forwards}
+@keyframes fill{to{width:100%}}
+.soilrow{display:grid;grid-template-columns:1.25fr 1fr;gap:.6rem;margin-top:.55rem}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:.28rem .7rem;font-size:.86rem;align-content:start;background:var(--bg2);border:1px solid var(--line);border-radius:.7rem;padding:.55rem .7rem}
+.kv .k{color:var(--mut)} .kv .v{text-align:right;font-weight:600;white-space:nowrap}
+.mbar{position:relative;height:.7rem;border-radius:1rem;background:#0a120f;border:1px solid var(--line);margin-top:.35rem;overflow:hidden}
+.mbar .band{position:absolute;top:0;bottom:0;background:rgba(67,192,127,.22)}
+.mbar .fill{position:absolute;top:0;bottom:0;left:0;border-radius:1rem;transition:width 1s}
+table.nodes{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:.4rem}
+table.nodes th{color:var(--mut);font-weight:600;text-align:left;padding:.25rem .35rem;font-size:.76rem;border-bottom:1px solid var(--line)}
+table.nodes td{padding:.32rem .35rem;border-bottom:1px solid #1b2b24;white-space:nowrap;font-variant-numeric:tabular-nums}
+table.nodes tr.off td{opacity:.45}
+table.nodes tr.sel td{background:rgba(164,224,90,.07)}
+.mini{display:inline-block;width:4.5rem;height:.45rem;border-radius:1rem;background:#0a120f;vertical-align:middle;position:relative;overflow:hidden;margin-right:.35rem}
+.mini i{position:absolute;left:0;top:0;bottom:0;border-radius:1rem}
+.bat{display:inline-flex;align-items:center;gap:.2rem}
+.bat b{display:inline-block;width:1.3rem;height:.6rem;border:1px solid var(--mut);border-radius:2px;position:relative}
+.bat b i{position:absolute;left:1px;top:1px;bottom:1px;border-radius:1px}
+.sig{display:inline-flex;gap:1px;align-items:flex-end;height:.8rem;vertical-align:middle}
+.sig i{width:.22rem;background:var(--line2);border-radius:1px}
+.sig i.on{background:var(--ok)}
+
+/* ---------- alerts ---------- */
+.alist{display:flex;flex-direction:column;gap:.45rem;margin-top:.55rem;overflow-y:auto;min-height:0}
+.al{font-size:1rem!important;padding:.65rem .75rem!important}
+.advbox{margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--line)}
+.advbox h3{margin:0 0 .2rem;font-size:.95rem;display:flex;align-items:center;gap:.5rem}
+.advbox .ic{width:1.15rem;height:1.15rem}
+.pill.sms{cursor:pointer}.pill.sms.ok .dot{background:var(--ok)}.pill.sms.warn{color:var(--warn)}.pill.sms.warn .dot{background:var(--warn)}.pill.sms.bad{color:var(--crit)}.pill.sms.bad .dot{background:var(--crit)}
+.al{display:flex;gap:.6rem;align-items:flex-start;padding:.5rem .6rem;border-radius:.65rem;background:var(--bg2);border:1px solid var(--line);border-left:.28rem solid var(--info);font-size:.9rem;line-height:1.3}
+.al.fresh{animation:slidein .5s}
+.al.crit{border-left-color:var(--crit);background:linear-gradient(90deg,rgba(239,83,80,.14),var(--bg2))}
+.al.warn{border-left-color:var(--warn)} .al.info{border-left-color:var(--info)}
+.al .ti{margin-left:auto;color:var(--dim);font-size:.72rem;white-space:nowrap}
+.al.crit .tx{font-weight:600}
+@keyframes slidein{from{transform:translateX(1rem);opacity:0}to{transform:none;opacity:1}}
+.okmsg{display:flex;align-items:center;gap:.6rem;color:var(--ok);padding:.8rem;font-weight:600}
+.adv{display:flex;gap:.55rem;align-items:flex-start;font-size:.9rem;padding:.4rem 0;border-bottom:1px dashed var(--line)}
+.adv:last-child{border-bottom:0}
+.adv .n{flex:none;width:1.4rem;height:1.4rem;border-radius:50%;background:var(--brand);color:#10200f;font-weight:700;font-size:.78rem;display:grid;place-items:center}
+
+/* ---------- footer ---------- */
+footer{display:flex;align-items:center;gap:.8rem;min-width:0}
+.ticker{flex:1;overflow:hidden;white-space:nowrap;background:var(--card);border:1px solid var(--line);border-radius:2rem;padding:.42rem 0;position:relative;mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
+.ticker .run{display:inline-block;padding-left:100%;animation:tick 40s linear infinite;font-size:.92rem}
+.ticker .run span{margin-right:3rem}
+.ticker .run .c{color:var(--crit);font-weight:600}.ticker .run .w{color:var(--warn)}
+@keyframes tick{to{transform:translateX(-100%)}}
+.scen{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}
+.scen .lb{font-size:.78rem;color:var(--gold);font-weight:700;letter-spacing:.04em;margin-right:.2rem}
+.scen button{background:var(--card);border:1px solid #4d4322;color:#e9d9a8;border-radius:1rem;padding:.3rem .65rem;font-size:.78rem}
+.scen button.on{background:var(--gold);color:#241a05;border-color:var(--gold);font-weight:700}
+.foot-meta{font-size:.75rem;color:var(--dim);white-space:nowrap}
+.tokbox{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;z-index:9}
+.tokbox.show{display:grid}
+.tokbox .in{background:var(--card2);border:1px solid var(--line2);border-radius:1rem;padding:1.2rem;min-width:22rem}
+.tokbox input{width:100%;margin:.7rem 0;padding:.55rem;border-radius:.5rem;border:1px solid var(--line2);background:var(--bg);color:var(--tx);font-size:1rem}
+.tokbox button{background:var(--brand);border:0;border-radius:.5rem;padding:.5rem 1rem;font-weight:700}
+.toast{position:fixed;left:50%;top:1rem;transform:translateX(-50%);background:var(--card2);border:1px solid var(--line2);border-radius:2rem;padding:.5rem 1.1rem;font-weight:600;opacity:0;transition:opacity .3s;z-index:10;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
+        <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c8f07a"/><stop offset="1" stop-color="#3fa266"/></linearGradient></defs>
+        <circle cx="24" cy="24" r="22" fill="#132a1c" stroke="#2f5a3c"/>
+        <path d="M10 33c6-2 11-2 14 0s9 2 14 0" stroke="#3d9be0" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        <path d="M24 30C24 20 30 13 38 11c0 9-5 16-14 19z" fill="url(#lg)"/>
+        <path d="M24 30c0-7-4-12-11-14 0 7 4 12 11 14z" fill="#7fcf5f"/>
+        <path d="M24 30V20" stroke="#0d1a12" stroke-width="1.2"/>
+      </svg>
+      <div style="min-width:0">
+        <div class="bname">BHOO<span>MI</span></div>
+        <div class="bsub"><span data-i="app_sub">Smart Farm Monitor</span> · <span id="farm">—</span></div>
+      </div>
+    </div>
+    <div class="clock"><div class="t" id="clk">--:--</div><div class="d" id="dte"></div></div>
+    <span class="pill" id="mode"><span class="dot"></span><span id="modeTx">…</span></span>
+    <span class="pill sms" id="smsPill" title="4G modem and SMS reports"><span class="dot"></span><span id="smsTx">SMS …</span></span>
+    <div class="langs" id="langs"></div>
+    <div class="score" title="Farm health">
+      <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="none" stroke="#1f3229" stroke-width="4"/>
+        <circle id="scArc" cx="20" cy="20" r="16" fill="none" stroke="#43c07f" stroke-width="4" stroke-linecap="round"
+          stroke-dasharray="100.5" stroke-dashoffset="100.5" transform="rotate(-90 20 20)" style="transition:stroke-dashoffset 1s,stroke .5s"/>
+        <text id="scTx" x="20" y="24.5" text-anchor="middle" fill="#e8f1ec" font-size="12" font-weight="700">--</text></svg>
+      <div class="lbl" data-i="health">Farm health</div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= POND ================= -->
+    <section class="col">
+      <div class="card grow" id="pondCard">
+        <h2><svg class="ic" viewBox="0 0 24 24"><path d="M3 15c2.5-1.6 5-1.6 7.5 0s5 1.6 7.5 0 2.3-1.2 3-1.4M3 19c2.5-1.6 5-1.6 7.5 0s5 1.6 7.5 0" stroke="#3d9be0" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M12 3c2.6 3.2 4 5.4 4 7.2A4 4 0 0 1 8 10.2C8 8.4 9.4 6.2 12 3z" fill="#56a8e8"/></svg>
+          <span data-i="pond">Pond</span><span id="pName" class="mono" style="font-size:.9rem;color:var(--mut)">BHOOMI_PN</span>
+          <span class="sub" id="pLink"></span></h2>
+        <div class="aer" id="aer">
+          <svg class="fan" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#0d1814" stroke="#2f4a3e"/>
+            <g class="blades" fill="#56a8e8"><path d="M20 20 L20 5 A7 7 0 0 1 26 13 Z"/><path d="M20 20 L33 27.5 A7 7 0 0 1 23.5 29 Z"/><path d="M20 20 L7 27.5 A7 7 0 0 1 10.5 17 Z"/></g>
+            <circle cx="20" cy="20" r="3" fill="#e8f1ec"/></svg>
+          <div><div class="st"><span data-i="aerator">Aerator</span>: <span id="aerSt">—</span></div>
+            <div class="meta"><span data-i="mode">Mode</span> <b id="aerMode">AUTO</b> · <span id="aerI">— A</span></div></div>
+          <div class="ctl" id="ctl" hidden>
+            <button data-cmd="ON" data-i="on">ON</button><button data-cmd="OFF" data-i="off">OFF</button><button data-cmd="AUTO" data-i="auto">AUTO</button>
+          </div>
+        </div>
+        <div class="gauges g2" id="pGauges"></div>
+        <div class="chart-h"><span data-i="do_chart">Oxygen – last 6 hours</span><span class="mono" id="doRange"></span></div>
+        <svg class="chart" id="doChart" style="height:10rem" viewBox="0 0 400 120" preserveAspectRatio="none"></svg>
+        <div class="stats">
+          <div class="stat"><div class="k" data-i="trend">Trend</div><div class="v" id="sTrend">—</div></div>
+          <div class="stat"><div class="k" data-i="dawn">Oxygen at 6 AM</div><div class="v" id="sDawn">—</div></div>
+          <div class="stat"><div class="k" data-i="runtime">Aerator run today</div><div class="v" id="sRun">—</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SOIL ================= -->
+    <section class="col">
+      <div class="card grow">
+        <h2><svg class="ic" viewBox="0 0 24 24"><path d="M2 18h20" stroke="#8a6a3c" stroke-width="2.5"/><path d="M2 21h20" stroke="#6d5330" stroke-width="2"/><path d="M12 17V9" stroke="#7fcf5f" stroke-width="2"/><path d="M12 11c0-3 2-5 6-5 0 3-2 5-6 5zM12 13c0-2.4-1.7-4-5-4 0 2.4 1.7 4 5 4z" fill="#a4e05a"/></svg>
+          <span data-i="soil">Soil fields</span><span id="sName" class="mono" style="font-size:.9rem;color:var(--mut)">BHOOMI_SN</span>
+          <span class="sub" id="sLink"></span></h2>
+        <div class="tabs" id="tabs"></div>
+        <div class="gauges g4" id="sGauges"></div>
+        <div class="soilrow">
+          <div>
+            <div class="chart-h" style="margin-top:0"><span data-i="moist_chart">Soil moisture – last 6 hours</span><span class="mono" id="mLegend"></span></div>
+            <svg class="chart" id="mChart" style="height:8.6rem" viewBox="0 0 400 110" preserveAspectRatio="none"></svg>
+          </div>
+          <div class="kv" id="sKv"></div>
+        </div>
+        <div class="chart-h"><span data-i="all_nodes">All soil nodes</span><span></span></div>
+        <table class="nodes" id="nTable"></table>
+      </div>
+    </section>
+
+    <!-- ================= ALERTS (full right side) ================= -->
+    <section class="col">
+      <div class="card grow" style="display:flex;flex-direction:column">
+        <h2><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l10 18H2z" fill="none" stroke="#f0903a" stroke-width="2" stroke-linejoin="round"/><path d="M12 10v5" stroke="#f0903a" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="18" r="1.2" fill="#f0903a"/></svg>
+          <span data-i="alerts">Alerts</span><span class="sub" id="aCount"></span></h2>
+        <div class="alist grow" id="alist"></div>
+        <div class="advbox">
+          <h3><svg class="ic" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" fill="none" stroke="#a4e05a" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            <span data-i="advice">What to do</span></h3>
+          <div id="advice"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="scen" id="scen" hidden></div>
+    <div class="ticker"><div class="run" id="ticker"></div></div>
+    <div class="foot-meta" id="fmeta"></div>
+  </footer>
+</div>
+
+<div class="tokbox" id="tokbox"><div class="in">
+  <b data-i="token">Control token</b>
+  <input id="tokIn" type="password" autocomplete="off">
+  <button id="tokOk" data-i="send">Send</button>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>window.BHOOMI_BOOT = /*BHOOMI_BOOT*/null;</script>
+<script>
+/* BHOOMI dashboard translations: English, Telugu, Hindi, Tamil, Kannada.
+   Keys starting with A_ are alerts, FLT_ pond faults, V_ advice.
+   {node} {zone} {crop} {v} {h} {m} {min} {max} {cmd} are filled in at runtime.
+   Native speakers should review these before field use. */
+window.BHOOMI_I18N = {
+en: { _name:"English", _short:"EN", _locale:"en-IN",
+ app_sub:"Smart Farm Monitor", pond:"Pond", soil:"Soil fields", mesh:"LoRa mesh network", alerts:"Alerts",
+ advice:"What to do", all_nodes:"All soil nodes", health:"Farm health", live:"LIVE", demo:"DEMO", offline:"OFFLINE",
+ connecting:"Connecting…", sim_note:"Simulated data", DO:"Dissolved oxygen", DOS:"Oxygen saturation", PH:"Water pH",
+ WT:"Water temperature", AERI:"Aerator current", aerator:"Aerator", on:"ON", off:"OFF", auto:"AUTO", mode:"Mode",
+ M1:"Moisture 15 cm", M2:"Moisture 30 cm", ST:"Soil temperature", AT:"Air temperature", RH:"Humidity", LUX:"Sunlight",
+ LWH:"Leaf wet hours", SPH:"Soil pH", VPD:"Air dryness (VPD)", EC:"Salt (EC)", do_chart:"Oxygen – last 6 hours",
+ moist_chart:"Soil moisture – last 6 hours", trend:"Trend", per_h:"/h", dawn:"Oxygen at 6 AM (forecast)",
+ runtime:"Aerator run today", min:"min", faults:"Faults", none:"None", crop:"Crop", zone:"Zone", battery:"Battery",
+ signal:"Signal", hops:"Hops", direct:"Direct", via:"via", last_seen:"Last seen", ago_s:"{n} s ago", ago_m:"{n} min ago",
+ ago_h:"{n} h ago", online:"Online", offline_n:"Offline", st_ok:"Good", st_low:"Low", st_high:"High",
+ st_critical:"Critical", st_watch:"Watch", st_dry:"Dry", st_wet:"Too wet", st_bad:"Out of range", st_invalid:"No reading",
+ st_cold:"Cold", st_hot:"Hot", st_humid:"Humid", st_dark:"Dark", st_bright:"Bright", risk_low:"Low",
+ risk_medium:"Medium", risk_high:"High", fungal:"Fungal risk", root:"Root-zone moisture", all_ok:"All normal – no alerts",
+ hub:"Hub", packets:"packets", dup:"copy", gateway:"Raspberry Pi hub", no_data:"Waiting for data…",
+ c_paddy:"Paddy", c_groundnut:"Groundnut", c_chilli:"Chilli", c_cotton:"Cotton", c_default:"Crop",
+ A_DO_CRIT:"{node}: oxygen critically low – {v} mg/L", A_DO_LOW:"{node}: oxygen low – {v} mg/L",
+ A_DO_DAWN:"{node}: oxygen may fall to {v} mg/L by 6 AM", A_PH_RANGE:"{node}: water pH out of range – {v}",
+ A_WT_HIGH:"{node}: water too hot – {v} °C", A_WT_LOW:"{node}: water cold – {v} °C",
+ A_SOIL_DRY:"{node}: soil dry – {v}% (needs {min}%)", A_SOIL_WET:"{node}: soil waterlogged – {v}%",
+ A_SOIL_DRY_SOON:"{node}: soil will be dry in about {h} h", A_HEAT:"{node}: heat stress – air {v} °C",
+ A_FUNGAL:"{node}: high fungal disease risk (leaves wet {h} h)", A_SPH_LOW:"{node}: soil acidic – pH {v}",
+ A_SPH_HIGH:"{node}: soil alkaline – pH {v}", A_LOWBAT:"{node}: battery low – {v} V", A_SOIL_SENSOR:"{node}: sensor problem",
+ A_OFFLINE:"{node}: no signal for {m} min", A_CMD_ACK:"{node}: command done ({cmd})",
+ A_CMD_FAIL:"{node}: command not confirmed ({cmd})",
+ FLT_1:"{node}: oxygen probe – no signal", FLT_2:"{node}: oxygen reading not believable", FLT_3:"{node}: oxygen reading stuck",
+ FLT_4:"{node}: pH reading out of range", FLT_5:"{node}: pH probe not responding", FLT_6:"{node}: water temperature sensor failed",
+ FLT_7:"{node}: low supply voltage", FLT_10:"{node}: aerator ON but no current – check pump/power",
+ FLT_11:"{node}: aerator ON but oxygen still falling", FLT_20:"{node}: buoy silent", FLT_21:"{node}: buoy gets no reply from bank unit",
+ V_IRRIGATE:"Irrigate {zone} ({crop}) now", V_IRRIGATE_PLAN:"Plan irrigation for {zone} within {h} h",
+ V_FUNGAL_ADVICE:"Check leaves in {zone}; avoid evening watering", V_AER_ON_NOW:"Switch the aerator ON now",
+ V_AER_NIGHT:"Keep the aerator ready tonight – oxygen may drop to {v} mg/L", V_PH_ADVICE:"Check pond water; consider partial water exchange",
+ sc_title:"Demo scenarios", sc_normal:"Normal day", sc_night:"Night oxygen drop", sc_dry:"Dry field", sc_fungal:"Fungal weather",
+ sc_relay:"Relay node fails", sc_aer:"Aerator fault", sc_heat:"Heat wave", ctl_title:"Aerator control", token:"Control token",
+ send:"Send", sent:"Sent", cmd_err:"Command failed", lang_rotate:"Rotate languages", packet_log:"LoRa packets" },
+
+te: { _name:"తెలుగు", _short:"తె", _locale:"te-IN",
+ app_sub:"స్మార్ట్ పొలం పర్యవేక్షణ", pond:"చెరువు", soil:"పొలం నేల", mesh:"LoRa మెష్ నెట్‌వర్క్", alerts:"హెచ్చరికలు",
+ advice:"ఏం చేయాలి", all_nodes:"అన్ని నేల నోడ్‌లు", health:"పొలం ఆరోగ్యం", live:"లైవ్", demo:"డెమో", offline:"ఆఫ్‌లైన్",
+ connecting:"కనెక్ట్ అవుతోంది…", sim_note:"అనుకరణ డేటా", DO:"కరిగిన ఆక్సిజన్", DOS:"ఆక్సిజన్ సంతృప్తి", PH:"నీటి pH",
+ WT:"నీటి ఉష్ణోగ్రత", AERI:"ఏరేటర్ కరెంట్", aerator:"ఏరేటర్", on:"ఆన్", off:"ఆఫ్", auto:"ఆటో", mode:"మోడ్",
+ M1:"తేమ 15 సెం.మీ", M2:"తేమ 30 సెం.మీ", ST:"నేల ఉష్ణోగ్రత", AT:"గాలి ఉష్ణోగ్రత", RH:"గాలిలో తేమ", LUX:"సూర్యకాంతి",
+ LWH:"ఆకు తడి గంటలు", SPH:"నేల pH", VPD:"గాలి పొడితనం (VPD)", EC:"లవణం (EC)", do_chart:"ఆక్సిజన్ – గత 6 గంటలు",
+ moist_chart:"నేల తేమ – గత 6 గంటలు", trend:"ధోరణి", per_h:"/గం", dawn:"ఉదయం 6 గం. ఆక్సిజన్ (అంచనా)",
+ runtime:"ఈరోజు ఏరేటర్ నడిచింది", min:"నిమి", faults:"లోపాలు", none:"ఏమీ లేవు", crop:"పంట", zone:"ప్రాంతం", battery:"బ్యాటరీ",
+ signal:"సిగ్నల్", hops:"హాప్‌లు", direct:"నేరుగా", via:"ద్వారా", last_seen:"చివరి సందేశం", ago_s:"{n} సె. క్రితం",
+ ago_m:"{n} నిమి. క్రితం", ago_h:"{n} గం. క్రితం", online:"ఆన్‌లైన్", offline_n:"ఆఫ్‌లైన్", st_ok:"బాగుంది", st_low:"తక్కువ",
+ st_high:"ఎక్కువ", st_critical:"ప్రమాదం", st_watch:"గమనించండి", st_dry:"ఎండిపోయింది", st_wet:"అధిక తడి", st_bad:"పరిధి దాటింది",
+ st_invalid:"రీడింగ్ లేదు", st_cold:"చల్లగా", st_hot:"వేడిగా", st_humid:"తేమగా", st_dark:"చీకటి", st_bright:"ప్రకాశం",
+ risk_low:"తక్కువ", risk_medium:"మధ్యస్థం", risk_high:"ఎక్కువ", fungal:"శిలీంధ్ర వ్యాధి ప్రమాదం", root:"వేరు ప్రాంత తేమ",
+ all_ok:"అంతా సాధారణం – హెచ్చరికలు లేవు", hub:"హబ్", packets:"ప్యాకెట్లు", dup:"నకలు", gateway:"రాస్ప్బెర్రీ పై హబ్",
+ no_data:"డేటా కోసం వేచి ఉంది…", c_paddy:"వరి", c_groundnut:"వేరుశనగ", c_chilli:"మిరప", c_cotton:"పత్తి", c_default:"పంట",
+ A_DO_CRIT:"{node}: ఆక్సిజన్ చాలా తక్కువ – {v} mg/L", A_DO_LOW:"{node}: ఆక్సిజన్ తక్కువ – {v} mg/L",
+ A_DO_DAWN:"{node}: ఉదయం 6 గం. కల్లా ఆక్సిజన్ {v} mg/L కి పడిపోవచ్చు", A_PH_RANGE:"{node}: నీటి pH పరిధి దాటింది – {v}",
+ A_WT_HIGH:"{node}: నీరు చాలా వేడిగా ఉంది – {v} °C", A_WT_LOW:"{node}: నీరు చల్లగా ఉంది – {v} °C",
+ A_SOIL_DRY:"{node}: నేల ఎండిపోయింది – {v}% (కావాల్సింది {min}%)", A_SOIL_WET:"{node}: నేలలో నీరు నిలిచింది – {v}%",
+ A_SOIL_DRY_SOON:"{node}: సుమారు {h} గంటల్లో నేల ఎండిపోతుంది", A_HEAT:"{node}: వేడి ఒత్తిడి – గాలి {v} °C",
+ A_FUNGAL:"{node}: శిలీంధ్ర వ్యాధి ప్రమాదం ఎక్కువ (ఆకులు {h} గం. తడిగా)", A_SPH_LOW:"{node}: నేల ఆమ్లంగా ఉంది – pH {v}",
+ A_SPH_HIGH:"{node}: నేల క్షారంగా ఉంది – pH {v}", A_LOWBAT:"{node}: బ్యాటరీ తక్కువ – {v} V", A_SOIL_SENSOR:"{node}: సెన్సార్ సమస్య",
+ A_OFFLINE:"{node}: {m} నిమిషాలుగా సిగ్నల్ లేదు", A_CMD_ACK:"{node}: ఆదేశం పూర్తయింది ({cmd})",
+ A_CMD_FAIL:"{node}: ఆదేశం నిర్ధారించబడలేదు ({cmd})",
+ FLT_1:"{node}: ఆక్సిజన్ ప్రోబ్ – సిగ్నల్ లేదు", FLT_2:"{node}: ఆక్సిజన్ రీడింగ్ నమ్మదగినది కాదు", FLT_3:"{node}: ఆక్సిజన్ రీడింగ్ నిలిచిపోయింది",
+ FLT_4:"{node}: pH రీడింగ్ పరిధి దాటింది", FLT_5:"{node}: pH ప్రోబ్ స్పందించడం లేదు", FLT_6:"{node}: నీటి ఉష్ణోగ్రత సెన్సార్ పనిచేయడం లేదు",
+ FLT_7:"{node}: సరఫరా వోల్టేజ్ తక్కువ", FLT_10:"{node}: ఏరేటర్ ఆన్ కానీ కరెంట్ లేదు – పంప్/విద్యుత్ తనిఖీ చేయండి",
+ FLT_11:"{node}: ఏరేటర్ ఆన్‌లో ఉన్నా ఆక్సిజన్ పడిపోతోంది", FLT_20:"{node}: బోయ్ నుండి సందేశం లేదు",
+ FLT_21:"{node}: గట్టు యూనిట్ నుండి బోయ్‌కు జవాబు లేదు",
+ V_IRRIGATE:"{zone} ({crop}) కి ఇప్పుడే నీరు పెట్టండి", V_IRRIGATE_PLAN:"{zone} కి {h} గంటల్లో నీటి పారుదల ప్లాన్ చేయండి",
+ V_FUNGAL_ADVICE:"{zone} లో ఆకులు పరిశీలించండి; సాయంత్రం నీరు పెట్టవద్దు", V_AER_ON_NOW:"ఏరేటర్‌ను ఇప్పుడే ఆన్ చేయండి",
+ V_AER_NIGHT:"ఈ రాత్రి ఏరేటర్ సిద్ధంగా ఉంచండి – ఆక్సిజన్ {v} mg/L కి పడిపోవచ్చు", V_PH_ADVICE:"చెరువు నీటిని పరీక్షించండి; కొంత నీరు మార్చడం పరిశీలించండి",
+ sc_title:"డెమో పరిస్థితులు", sc_normal:"సాధారణ రోజు", sc_night:"రాత్రి ఆక్సిజన్ తగ్గుదల", sc_dry:"ఎండిన పొలం", sc_fungal:"శిలీంధ్ర వాతావరణం",
+ sc_relay:"రిలే నోడ్ విఫలం", sc_aer:"ఏరేటర్ లోపం", sc_heat:"వడగాలి", ctl_title:"ఏరేటర్ నియంత్రణ", token:"నియంత్రణ టోకెన్",
+ send:"పంపు", sent:"పంపబడింది", cmd_err:"ఆదేశం విఫలమైంది", lang_rotate:"భాషలు మార్చు", packet_log:"LoRa ప్యాకెట్లు" },
+
+hi: { _name:"हिन्दी", _short:"हिं", _locale:"hi-IN",
+ app_sub:"स्मार्ट खेत निगरानी", pond:"तालाब", soil:"खेत की मिट्टी", mesh:"LoRa मेश नेटवर्क", alerts:"चेतावनियाँ",
+ advice:"क्या करें", all_nodes:"सभी मिट्टी नोड", health:"खेत का स्वास्थ्य", live:"लाइव", demo:"डेमो", offline:"ऑफ़लाइन",
+ connecting:"जुड़ रहा है…", sim_note:"सिमुलेटेड डेटा", DO:"घुली ऑक्सीजन", DOS:"ऑक्सीजन संतृप्ति", PH:"पानी का pH",
+ WT:"पानी का तापमान", AERI:"एरेटर करंट", aerator:"एरेटर", on:"चालू", off:"बंद", auto:"ऑटो", mode:"मोड",
+ M1:"नमी 15 सेमी", M2:"नमी 30 सेमी", ST:"मिट्टी का तापमान", AT:"हवा का तापमान", RH:"आर्द्रता", LUX:"धूप",
+ LWH:"पत्ती गीली (घंटे)", SPH:"मिट्टी का pH", VPD:"हवा का सूखापन (VPD)", EC:"लवण (EC)", do_chart:"ऑक्सीजन – पिछले 6 घंटे",
+ moist_chart:"मिट्टी की नमी – पिछले 6 घंटे", trend:"रुझान", per_h:"/घं", dawn:"सुबह 6 बजे ऑक्सीजन (अनुमान)",
+ runtime:"आज एरेटर चला", min:"मिनट", faults:"खराबी", none:"कोई नहीं", crop:"फसल", zone:"क्षेत्र", battery:"बैटरी",
+ signal:"सिग्नल", hops:"हॉप", direct:"सीधा", via:"द्वारा", last_seen:"आख़िरी संदेश", ago_s:"{n} सेकंड पहले",
+ ago_m:"{n} मिनट पहले", ago_h:"{n} घंटे पहले", online:"ऑनलाइन", offline_n:"ऑफ़लाइन", st_ok:"अच्छा", st_low:"कम",
+ st_high:"ज़्यादा", st_critical:"ख़तरनाक", st_watch:"ध्यान दें", st_dry:"सूखा", st_wet:"बहुत गीला", st_bad:"सीमा से बाहर",
+ st_invalid:"रीडिंग नहीं", st_cold:"ठंडा", st_hot:"गर्म", st_humid:"नम", st_dark:"अंधेरा", st_bright:"तेज़ धूप",
+ risk_low:"कम", risk_medium:"मध्यम", risk_high:"अधिक", fungal:"फफूंद रोग जोखिम", root:"जड़ क्षेत्र की नमी",
+ all_ok:"सब सामान्य – कोई चेतावनी नहीं", hub:"हब", packets:"पैकेट", dup:"प्रति", gateway:"रास्पबेरी पाई हब",
+ no_data:"डेटा की प्रतीक्षा…", c_paddy:"धान", c_groundnut:"मूंगफली", c_chilli:"मिर्च", c_cotton:"कपास", c_default:"फसल",
+ A_DO_CRIT:"{node}: ऑक्सीजन बहुत कम – {v} mg/L", A_DO_LOW:"{node}: ऑक्सीजन कम – {v} mg/L",
+ A_DO_DAWN:"{node}: सुबह 6 बजे तक ऑक्सीजन {v} mg/L तक गिर सकती है", A_PH_RANGE:"{node}: पानी का pH सीमा से बाहर – {v}",
+ A_WT_HIGH:"{node}: पानी बहुत गर्म – {v} °C", A_WT_LOW:"{node}: पानी ठंडा – {v} °C",
+ A_SOIL_DRY:"{node}: मिट्टी सूखी – {v}% (चाहिए {min}%)", A_SOIL_WET:"{node}: मिट्टी में जलभराव – {v}%",
+ A_SOIL_DRY_SOON:"{node}: लगभग {h} घंटे में मिट्टी सूख जाएगी", A_HEAT:"{node}: गर्मी का तनाव – हवा {v} °C",
+ A_FUNGAL:"{node}: फफूंद रोग का ख़तरा अधिक (पत्ते {h} घंटे गीले)", A_SPH_LOW:"{node}: मिट्टी अम्लीय – pH {v}",
+ A_SPH_HIGH:"{node}: मिट्टी क्षारीय – pH {v}", A_LOWBAT:"{node}: बैटरी कम – {v} V", A_SOIL_SENSOR:"{node}: सेंसर में समस्या",
+ A_OFFLINE:"{node}: {m} मिनट से सिग्नल नहीं", A_CMD_ACK:"{node}: आदेश पूरा ({cmd})", A_CMD_FAIL:"{node}: आदेश की पुष्टि नहीं ({cmd})",
+ FLT_1:"{node}: ऑक्सीजन प्रोब – सिग्नल नहीं", FLT_2:"{node}: ऑक्सीजन रीडिंग अविश्वसनीय", FLT_3:"{node}: ऑक्सीजन रीडिंग अटकी हुई",
+ FLT_4:"{node}: pH रीडिंग सीमा से बाहर", FLT_5:"{node}: pH प्रोब जवाब नहीं दे रहा", FLT_6:"{node}: पानी तापमान सेंसर ख़राब",
+ FLT_7:"{node}: बिजली आपूर्ति वोल्टेज कम", FLT_10:"{node}: एरेटर चालू पर करंट नहीं – पंप/बिजली जाँचें",
+ FLT_11:"{node}: एरेटर चालू फिर भी ऑक्सीजन गिर रही", FLT_20:"{node}: बॉय से संदेश नहीं", FLT_21:"{node}: बॉय को किनारे की यूनिट से जवाब नहीं",
+ V_IRRIGATE:"{zone} ({crop}) में अभी सिंचाई करें", V_IRRIGATE_PLAN:"{zone} में {h} घंटे के भीतर सिंचाई की योजना बनाएं",
+ V_FUNGAL_ADVICE:"{zone} में पत्ते जाँचें; शाम को पानी न दें", V_AER_ON_NOW:"एरेटर अभी चालू करें",
+ V_AER_NIGHT:"आज रात एरेटर तैयार रखें – ऑक्सीजन {v} mg/L तक गिर सकती है", V_PH_ADVICE:"तालाब का पानी जाँचें; कुछ पानी बदलने पर विचार करें",
+ sc_title:"डेमो स्थितियाँ", sc_normal:"सामान्य दिन", sc_night:"रात में ऑक्सीजन गिरावट", sc_dry:"सूखा खेत", sc_fungal:"फफूंद वाला मौसम",
+ sc_relay:"रिले नोड बंद", sc_aer:"एरेटर खराबी", sc_heat:"लू", ctl_title:"एरेटर नियंत्रण", token:"नियंत्रण टोकन",
+ send:"भेजें", sent:"भेजा गया", cmd_err:"आदेश विफल", lang_rotate:"भाषाएँ बदलें", packet_log:"LoRa पैकेट" },
+
+ta: { _name:"தமிழ்", _short:"த", _locale:"ta-IN",
+ app_sub:"ஸ்மார்ட் பண்ணை கண்காணிப்பு", pond:"குளம்", soil:"வயல் மண்", mesh:"LoRa மெஷ் வலையமைப்பு", alerts:"எச்சரிக்கைகள்",
+ advice:"என்ன செய்ய வேண்டும்", all_nodes:"அனைத்து மண் நோடுகள்", health:"பண்ணை நலம்", live:"நேரலை", demo:"டெமோ",
+ offline:"இணைப்பில்லை", connecting:"இணைக்கிறது…", sim_note:"உருவகப்படுத்திய தரவு", DO:"கரைந்த ஆக்சிஜன்",
+ DOS:"ஆக்சிஜன் செறிவு", PH:"நீர் pH", WT:"நீர் வெப்பநிலை", AERI:"காற்றூட்டி மின்னோட்டம்", aerator:"காற்றூட்டி",
+ on:"இயக்கம்", off:"நிறுத்தம்", auto:"தானியங்கி", mode:"முறை", M1:"ஈரப்பதம் 15 செ.மீ", M2:"ஈரப்பதம் 30 செ.மீ",
+ ST:"மண் வெப்பநிலை", AT:"காற்று வெப்பநிலை", RH:"காற்று ஈரப்பதம்", LUX:"சூரிய ஒளி", LWH:"இலை ஈர மணிநேரம்", SPH:"மண் pH",
+ VPD:"காற்று வறட்சி (VPD)", EC:"உப்பு (EC)", do_chart:"ஆக்சிஜன் – கடந்த 6 மணி நேரம்", moist_chart:"மண் ஈரப்பதம் – கடந்த 6 மணி நேரம்",
+ trend:"போக்கு", per_h:"/மணி", dawn:"காலை 6 மணி ஆக்சிஜன் (கணிப்பு)", runtime:"இன்று காற்றூட்டி இயங்கியது", min:"நிமி",
+ faults:"கோளாறுகள்", none:"இல்லை", crop:"பயிர்", zone:"பகுதி", battery:"பேட்டரி", signal:"சிக்னல்", hops:"ஹாப்",
+ direct:"நேரடி", via:"வழியாக", last_seen:"கடைசி செய்தி", ago_s:"{n} வி. முன்", ago_m:"{n} நிமி. முன்", ago_h:"{n} மணி முன்",
+ online:"இணைப்பில்", offline_n:"இணைப்பில்லை", st_ok:"நன்று", st_low:"குறைவு", st_high:"அதிகம்", st_critical:"ஆபத்து",
+ st_watch:"கவனி", st_dry:"வறண்டது", st_wet:"அதிக ஈரம்", st_bad:"வரம்பு மீறல்", st_invalid:"அளவீடு இல்லை", st_cold:"குளிர்",
+ st_hot:"சூடு", st_humid:"ஈரமான", st_dark:"இருட்டு", st_bright:"பிரகாசம்", risk_low:"குறைவு", risk_medium:"நடுத்தரம்",
+ risk_high:"அதிகம்", fungal:"பூஞ்சை நோய் அபாயம்", root:"வேர் மண்டல ஈரப்பதம்", all_ok:"எல்லாம் சரி – எச்சரிக்கை இல்லை",
+ hub:"ஹப்", packets:"பாக்கெட்டுகள்", dup:"நகல்", gateway:"ராஸ்பெர்ரி பை ஹப்", no_data:"தரவுக்காகக் காத்திருக்கிறது…",
+ c_paddy:"நெல்", c_groundnut:"நிலக்கடலை", c_chilli:"மிளகாய்", c_cotton:"பருத்தி", c_default:"பயிர்",
+ A_DO_CRIT:"{node}: ஆக்சிஜன் மிகக் குறைவு – {v} mg/L", A_DO_LOW:"{node}: ஆக்சிஜன் குறைவு – {v} mg/L",
+ A_DO_DAWN:"{node}: காலை 6 மணிக்குள் ஆக்சிஜன் {v} mg/L ஆகக் குறையலாம்", A_PH_RANGE:"{node}: நீர் pH வரம்பு மீறல் – {v}",
+ A_WT_HIGH:"{node}: நீர் மிகச் சூடு – {v} °C", A_WT_LOW:"{node}: நீர் குளிர் – {v} °C",
+ A_SOIL_DRY:"{node}: மண் வறண்டது – {v}% (தேவை {min}%)", A_SOIL_WET:"{node}: மண்ணில் நீர் தேக்கம் – {v}%",
+ A_SOIL_DRY_SOON:"{node}: சுமார் {h} மணி நேரத்தில் மண் வறளும்", A_HEAT:"{node}: வெப்ப அழுத்தம் – காற்று {v} °C",
+ A_FUNGAL:"{node}: பூஞ்சை நோய் அபாயம் அதிகம் (இலைகள் {h} மணி ஈரம்)", A_SPH_LOW:"{node}: மண் அமிலத்தன்மை – pH {v}",
+ A_SPH_HIGH:"{node}: மண் காரத்தன்மை – pH {v}", A_LOWBAT:"{node}: பேட்டரி குறைவு – {v} V", A_SOIL_SENSOR:"{node}: சென்சார் பிரச்சனை",
+ A_OFFLINE:"{node}: {m} நிமிடமாக சிக்னல் இல்லை", A_CMD_ACK:"{node}: கட்டளை முடிந்தது ({cmd})",
+ A_CMD_FAIL:"{node}: கட்டளை உறுதிப்படுத்தப்படவில்லை ({cmd})",
+ FLT_1:"{node}: ஆக்சிஜன் ஆய்வி – சிக்னல் இல்லை", FLT_2:"{node}: ஆக்சிஜன் அளவீடு நம்பத்தகாதது", FLT_3:"{node}: ஆக்சிஜன் அளவீடு மாறவில்லை",
+ FLT_4:"{node}: pH அளவீடு வரம்பு மீறல்", FLT_5:"{node}: pH ஆய்வி பதிலளிக்கவில்லை", FLT_6:"{node}: நீர் வெப்ப சென்சார் பழுது",
+ FLT_7:"{node}: மின் வழங்கல் மின்னழுத்தம் குறைவு", FLT_10:"{node}: காற்றூட்டி இயக்கத்தில் ஆனால் மின்னோட்டம் இல்லை – பம்ப்/மின்சாரம் சரிபார்க்கவும்",
+ FLT_11:"{node}: காற்றூட்டி இயங்கியும் ஆக்சிஜன் குறைகிறது", FLT_20:"{node}: மிதவையிலிருந்து செய்தி இல்லை",
+ FLT_21:"{node}: கரை அலகிலிருந்து மிதவைக்கு பதில் இல்லை",
+ V_IRRIGATE:"{zone} ({crop}) – இப்போதே நீர் பாய்ச்சவும்", V_IRRIGATE_PLAN:"{zone} – {h} மணி நேரத்திற்குள் நீர்ப்பாசனம் திட்டமிடவும்",
+ V_FUNGAL_ADVICE:"{zone} இலைகளைச் சோதிக்கவும்; மாலையில் நீர் பாய்ச்ச வேண்டாம்", V_AER_ON_NOW:"காற்றூட்டியை இப்போதே இயக்கவும்",
+ V_AER_NIGHT:"இன்றிரவு காற்றூட்டியைத் தயாராக வைக்கவும் – ஆக்சிஜன் {v} mg/L ஆகக் குறையலாம்", V_PH_ADVICE:"குள நீரைச் சோதிக்கவும்; பகுதி நீர் மாற்றம் செய்யலாம்",
+ sc_title:"டெமோ சூழ்நிலைகள்", sc_normal:"சாதாரண நாள்", sc_night:"இரவு ஆக்சிஜன் குறைவு", sc_dry:"வறண்ட வயல்", sc_fungal:"பூஞ்சை வானிலை",
+ sc_relay:"ரிலே நோடு செயலிழப்பு", sc_aer:"காற்றூட்டி கோளாறு", sc_heat:"வெப்ப அலை", ctl_title:"காற்றூட்டி கட்டுப்பாடு",
+ token:"கட்டுப்பாட்டு டோக்கன்", send:"அனுப்பு", sent:"அனுப்பப்பட்டது", cmd_err:"கட்டளை தோல்வி", lang_rotate:"மொழிகளை மாற்று",
+ packet_log:"LoRa பாக்கெட்டுகள்" },
+
+kn: { _name:"ಕನ್ನಡ", _short:"ಕ", _locale:"kn-IN",
+ app_sub:"ಸ್ಮಾರ್ಟ್ ಹೊಲ ಮೇಲ್ವಿಚಾರಣೆ", pond:"ಕೊಳ", soil:"ಹೊಲದ ಮಣ್ಣು", mesh:"LoRa ಮೆಶ್ ಜಾಲ", alerts:"ಎಚ್ಚರಿಕೆಗಳು",
+ advice:"ಏನು ಮಾಡಬೇಕು", all_nodes:"ಎಲ್ಲಾ ಮಣ್ಣಿನ ನೋಡ್‌ಗಳು", health:"ಹೊಲದ ಆರೋಗ್ಯ", live:"ಲೈವ್", demo:"ಡೆಮೊ", offline:"ಆಫ್‌ಲೈನ್",
+ connecting:"ಸಂಪರ್ಕಿಸುತ್ತಿದೆ…", sim_note:"ಅನುಕರಿಸಿದ ಡೇಟಾ", DO:"ಕರಗಿದ ಆಮ್ಲಜನಕ", DOS:"ಆಮ್ಲಜನಕ ಸಂತೃಪ್ತಿ", PH:"ನೀರಿನ pH",
+ WT:"ನೀರಿನ ತಾಪಮಾನ", AERI:"ಏರೇಟರ್ ಕರೆಂಟ್", aerator:"ಏರೇಟರ್", on:"ಆನ್", off:"ಆಫ್", auto:"ಸ್ವಯಂ", mode:"ಮೋಡ್",
+ M1:"ತೇವಾಂಶ 15 ಸೆಂ.ಮೀ", M2:"ತೇವಾಂಶ 30 ಸೆಂ.ಮೀ", ST:"ಮಣ್ಣಿನ ತಾಪಮಾನ", AT:"ಗಾಳಿಯ ತಾಪಮಾನ", RH:"ಆರ್ದ್ರತೆ", LUX:"ಸೂರ್ಯನ ಬೆಳಕು",
+ LWH:"ಎಲೆ ಒದ್ದೆ ಗಂಟೆಗಳು", SPH:"ಮಣ್ಣಿನ pH", VPD:"ಗಾಳಿಯ ಒಣತನ (VPD)", EC:"ಲವಣ (EC)", do_chart:"ಆಮ್ಲಜನಕ – ಕಳೆದ 6 ಗಂಟೆ",
+ moist_chart:"ಮಣ್ಣಿನ ತೇವಾಂಶ – ಕಳೆದ 6 ಗಂಟೆ", trend:"ಪ್ರವೃತ್ತಿ", per_h:"/ಗಂ", dawn:"ಬೆಳಿಗ್ಗೆ 6 ಗಂಟೆ ಆಮ್ಲಜನಕ (ಅಂದಾಜು)",
+ runtime:"ಇಂದು ಏರೇಟರ್ ಓಡಿದ್ದು", min:"ನಿಮಿ", faults:"ದೋಷಗಳು", none:"ಇಲ್ಲ", crop:"ಬೆಳೆ", zone:"ವಲಯ", battery:"ಬ್ಯಾಟರಿ",
+ signal:"ಸಿಗ್ನಲ್", hops:"ಹಾಪ್", direct:"ನೇರ", via:"ಮೂಲಕ", last_seen:"ಕೊನೆಯ ಸಂದೇಶ", ago_s:"{n} ಸೆ. ಹಿಂದೆ",
+ ago_m:"{n} ನಿಮಿ. ಹಿಂದೆ", ago_h:"{n} ಗಂ. ಹಿಂದೆ", online:"ಆನ್‌ಲೈನ್", offline_n:"ಆಫ್‌ಲೈನ್", st_ok:"ಉತ್ತಮ", st_low:"ಕಡಿಮೆ",
+ st_high:"ಹೆಚ್ಚು", st_critical:"ಅಪಾಯ", st_watch:"ಗಮನಿಸಿ", st_dry:"ಒಣಗಿದೆ", st_wet:"ಅತಿ ಒದ್ದೆ", st_bad:"ಮಿತಿ ಮೀರಿದೆ",
+ st_invalid:"ರೀಡಿಂಗ್ ಇಲ್ಲ", st_cold:"ತಣ್ಣಗೆ", st_hot:"ಬಿಸಿ", st_humid:"ತೇವ", st_dark:"ಕತ್ತಲೆ", st_bright:"ಪ್ರಕಾಶ",
+ risk_low:"ಕಡಿಮೆ", risk_medium:"ಮಧ್ಯಮ", risk_high:"ಹೆಚ್ಚು", fungal:"ಶಿಲೀಂಧ್ರ ರೋಗದ ಅಪಾಯ", root:"ಬೇರು ವಲಯದ ತೇವಾಂಶ",
+ all_ok:"ಎಲ್ಲವೂ ಸಾಮಾನ್ಯ – ಎಚ್ಚರಿಕೆ ಇಲ್ಲ", hub:"ಹಬ್", packets:"ಪ್ಯಾಕೆಟ್‌ಗಳು", dup:"ನಕಲು", gateway:"ರಾಸ್ಪ್‌ಬೆರಿ ಪೈ ಹಬ್",
+ no_data:"ಡೇಟಾಗಾಗಿ ಕಾಯುತ್ತಿದೆ…", c_paddy:"ಭತ್ತ", c_groundnut:"ಶೇಂಗಾ", c_chilli:"ಮೆಣಸಿನಕಾಯಿ", c_cotton:"ಹತ್ತಿ", c_default:"ಬೆಳೆ",
+ A_DO_CRIT:"{node}: ಆಮ್ಲಜನಕ ತುಂಬಾ ಕಡಿಮೆ – {v} mg/L", A_DO_LOW:"{node}: ಆಮ್ಲಜನಕ ಕಡಿಮೆ – {v} mg/L",
+ A_DO_DAWN:"{node}: ಬೆಳಿಗ್ಗೆ 6ರೊಳಗೆ ಆಮ್ಲಜನಕ {v} mg/L ಗೆ ಇಳಿಯಬಹುದು", A_PH_RANGE:"{node}: ನೀರಿನ pH ಮಿತಿ ಮೀರಿದೆ – {v}",
+ A_WT_HIGH:"{node}: ನೀರು ತುಂಬಾ ಬಿಸಿ – {v} °C", A_WT_LOW:"{node}: ನೀರು ತಣ್ಣಗಿದೆ – {v} °C",
+ A_SOIL_DRY:"{node}: ಮಣ್ಣು ಒಣಗಿದೆ – {v}% (ಬೇಕು {min}%)", A_SOIL_WET:"{node}: ಮಣ್ಣಿನಲ್ಲಿ ನೀರು ನಿಂತಿದೆ – {v}%",
+ A_SOIL_DRY_SOON:"{node}: ಸುಮಾರು {h} ಗಂಟೆಯಲ್ಲಿ ಮಣ್ಣು ಒಣಗುತ್ತದೆ", A_HEAT:"{node}: ಉಷ್ಣ ಒತ್ತಡ – ಗಾಳಿ {v} °C",
+ A_FUNGAL:"{node}: ಶಿಲೀಂಧ್ರ ರೋಗದ ಅಪಾಯ ಹೆಚ್ಚು (ಎಲೆಗಳು {h} ಗಂ. ಒದ್ದೆ)", A_SPH_LOW:"{node}: ಮಣ್ಣು ಆಮ್ಲೀಯ – pH {v}",
+ A_SPH_HIGH:"{node}: ಮಣ್ಣು ಕ್ಷಾರೀಯ – pH {v}", A_LOWBAT:"{node}: ಬ್ಯಾಟರಿ ಕಡಿಮೆ – {v} V", A_SOIL_SENSOR:"{node}: ಸೆನ್ಸರ್ ಸಮಸ್ಯೆ",
+ A_OFFLINE:"{node}: {m} ನಿಮಿಷದಿಂದ ಸಿಗ್ನಲ್ ಇಲ್ಲ", A_CMD_ACK:"{node}: ಆದೇಶ ಪೂರ್ಣ ({cmd})", A_CMD_FAIL:"{node}: ಆದೇಶ ದೃಢಪಟ್ಟಿಲ್ಲ ({cmd})",
+ FLT_1:"{node}: ಆಮ್ಲಜನಕ ಪ್ರೋಬ್ – ಸಿಗ್ನಲ್ ಇಲ್ಲ", FLT_2:"{node}: ಆಮ್ಲಜನಕ ರೀಡಿಂಗ್ ನಂಬಲರ್ಹವಲ್ಲ", FLT_3:"{node}: ಆಮ್ಲಜನಕ ರೀಡಿಂಗ್ ಬದಲಾಗುತ್ತಿಲ್ಲ",
+ FLT_4:"{node}: pH ರೀಡಿಂಗ್ ಮಿತಿ ಮೀರಿದೆ", FLT_5:"{node}: pH ಪ್ರೋಬ್ ಪ್ರತಿಕ್ರಿಯಿಸುತ್ತಿಲ್ಲ", FLT_6:"{node}: ನೀರಿನ ತಾಪಮಾನ ಸೆನ್ಸರ್ ಕೆಟ್ಟಿದೆ",
+ FLT_7:"{node}: ವಿದ್ಯುತ್ ಪೂರೈಕೆ ವೋಲ್ಟೇಜ್ ಕಡಿಮೆ", FLT_10:"{node}: ಏರೇಟರ್ ಆನ್ ಆದರೆ ಕರೆಂಟ್ ಇಲ್ಲ – ಪಂಪ್/ವಿದ್ಯುತ್ ಪರಿಶೀಲಿಸಿ",
+ FLT_11:"{node}: ಏರೇಟರ್ ಆನ್ ಇದ್ದರೂ ಆಮ್ಲಜನಕ ಇಳಿಯುತ್ತಿದೆ", FLT_20:"{node}: ತೇಲುವ ಘಟಕದಿಂದ ಸಂದೇಶ ಇಲ್ಲ",
+ FLT_21:"{node}: ದಡದ ಘಟಕದಿಂದ ತೇಲುವ ಘಟಕಕ್ಕೆ ಉತ್ತರ ಇಲ್ಲ",
+ V_IRRIGATE:"{zone} ({crop}) ಗೆ ಈಗಲೇ ನೀರು ಹಾಯಿಸಿ", V_IRRIGATE_PLAN:"{zone} ಗೆ {h} ಗಂಟೆಯೊಳಗೆ ನೀರಾವರಿ ಯೋಜಿಸಿ",
+ V_FUNGAL_ADVICE:"{zone} ನಲ್ಲಿ ಎಲೆಗಳನ್ನು ಪರಿಶೀಲಿಸಿ; ಸಂಜೆ ನೀರು ಹಾಕಬೇಡಿ", V_AER_ON_NOW:"ಏರೇಟರ್ ಅನ್ನು ಈಗಲೇ ಆನ್ ಮಾಡಿ",
+ V_AER_NIGHT:"ಇಂದು ರಾತ್ರಿ ಏರೇಟರ್ ಸಿದ್ಧವಾಗಿಡಿ – ಆಮ್ಲಜನಕ {v} mg/L ಗೆ ಇಳಿಯಬಹುದು", V_PH_ADVICE:"ಕೊಳದ ನೀರು ಪರೀಕ್ಷಿಸಿ; ಸ್ವಲ್ಪ ನೀರು ಬದಲಿಸುವುದನ್ನು ಪರಿಗಣಿಸಿ",
+ sc_title:"ಡೆಮೊ ಸನ್ನಿವೇಶಗಳು", sc_normal:"ಸಾಮಾನ್ಯ ದಿನ", sc_night:"ರಾತ್ರಿ ಆಮ್ಲಜನಕ ಇಳಿಕೆ", sc_dry:"ಒಣ ಹೊಲ", sc_fungal:"ಶಿಲೀಂಧ್ರ ಹವಾಮಾನ",
+ sc_relay:"ರಿಲೇ ನೋಡ್ ವಿಫಲ", sc_aer:"ಏರೇಟರ್ ದೋಷ", sc_heat:"ಬಿಸಿಗಾಳಿ", ctl_title:"ಏರೇಟರ್ ನಿಯಂತ್ರಣ", token:"ನಿಯಂತ್ರಣ ಟೋಕನ್",
+ send:"ಕಳುಹಿಸಿ", sent:"ಕಳುಹಿಸಲಾಗಿದೆ", cmd_err:"ಆದೇಶ ವಿಫಲ", lang_rotate:"ಭಾಷೆ ಬದಲಿಸು", packet_log:"LoRa ಪ್ಯಾಕೆಟ್‌ಗಳು" }
+};
+
+</script>
+<script>
+/* BHOOMI demo engine: runs the whole farm in the browser when no hub is connected.
+   It builds real AM1 LoRa frames, relays some of them through other nodes (mesh),
+   parses them like the hub does, runs the same analysis rules and produces the same
+   snapshot the Raspberry Pi serves at /api/state. One simulated hour = 30 s. */
+(() => {
+"use strict";
+const HUB = "HB0001";
+const TICK_MS = 1500, SIM_MIN_PER_TICK = 3;          // 3 simulated minutes per tick
+const NODES = {
+  A1B2C3: { type: "POND", name: "BHOOMI_PN-01", zone: "Pond 1", x: 84, y: 76 },
+  "5A0001": { type: "SOIL", name: "BHOOMI_SN-01", zone: "Field A", crop: "groundnut", x: 17, y: 26 },
+  "5A0002": { type: "SOIL", name: "BHOOMI_SN-02", zone: "Field B", crop: "chilli", x: 50, y: 13 },
+  "5A0003": { type: "SOIL", name: "BHOOMI_SN-03", zone: "Field C", crop: "paddy", x: 84, y: 24, via: "5A0002", pro: true },
+  "5A0004": { type: "SOIL", name: "BHOOMI_SN-04", zone: "Field D", crop: "cotton", x: 16, y: 80, via: "5A0001" },
+};
+const CROPS = { paddy: [45, 90], groundnut: [22, 55], chilli: [28, 60], cotton: [25, 60], default: [25, 65] };
+const TH = { do_critical: 3, do_low: 4, do_watch: 5, pond_ph_min: 6.5, pond_ph_max: 8.8, wt_max: 33, wt_min: 20,
+  sph_min: 5.5, sph_max: 8, heat: 38, bat_low: 3.4, bat_crit: 3.3 };
+
+const rnd = (a, b) => a + Math.random() * (b - a);
+const gauss = (s) => (Math.random() + Math.random() + Math.random() - 1.5) * s * 1.4;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const r2 = (v, d = 2) => Math.round(v * 10 ** d) / 10 ** d;
+
+// ---- simulated clock: today 16:30 IST
+const IST = 330 * 60;
+let simT = (() => { const n = Date.now() / 1000; const day = Math.floor((n + IST) / 86400) * 86400 - IST; return day + 16.5 * 3600; })();
+const localHour = (ts) => (((ts + IST) % 86400) + 86400) % 86400 / 3600;
+
+// ---- world state
+let sc = "normal";
+const W = {};
+function resetWorld() {
+  for (const [id, n] of Object.entries(NODES)) {
+    const prev = W[id] || {};
+    W[id] = n.type === "POND"
+      ? { seq: prev.seq || 401, do: 6.6, aer: 0, mode: "AUTO", ph: 7.9, lo: 4, hi: 6, last: simT, ack: [] }
+      : { seq: prev.seq || Math.floor(rnd(20, 300)), m1: { "5A0001": 34, "5A0002": 41, "5A0003": 58, "5A0004": 37 }[id],
+          m2: { "5A0001": 39, "5A0002": 45, "5A0003": 66, "5A0004": 42 }[id], lwh: 0, bv: rnd(3.82, 4.08), last: simT };
+  }
+}
+resetWorld();
+
+// ---- frame builder / parser (same AM1 format as the firmware and hub)
+function build(id, type, seq, kv) {
+  return ["AM1", `ID=${id}`, `T=${type}`, `N=${seq & 0xffff}`, ...Object.entries(kv).filter(([, v]) => v !== undefined && v !== null).map(([k, v]) => `${k}=${v}`)].join(",");
+}
+const NUMERIC = new Set(["N", "HOP", "BV", "DO", "DOS", "PH", "WT", "AER", "AERI", "FLT", "M1", "M2", "ST", "AT", "RH", "LUX", "LW", "LWH", "EC", "FLG"]);
+function parse(raw) {
+  if (!raw.startsWith("AM1,")) throw new Error("bad header");
+  const f = {};
+  raw.split(",").slice(1).forEach((p) => { const i = p.indexOf("="); const k = p.slice(0, i), v = p.slice(i + 1); f[k] = NUMERIC.has(k) && !isNaN(+v) ? +v : v; });
+  return f;
+}
+
+// ---- generators
+function sun(ts) { const h = localHour(ts); return Math.max(0, Math.sin(((h - 6) / 12) * Math.PI)); }
+function genSoil(id) {
+  const n = NODES[id], st = W[id], dt = (simT - st.last) / 3600; st.last = simT;
+  const s = sun(simT), h = localHour(simT);
+  let at = 24 + 11 * s + gauss(0.3), rh = clamp(86 - 42 * s + gauss(1.5), 25, 99);
+  let dry = 1;
+  if (sc === "heat") { at += 8 * Math.max(0.3, s); rh = clamp(rh - 18, 15, 99); dry = 2; }
+  if (sc === "dry" && id === "5A0002") dry = 7;
+  if (sc === "fungal" && (id === "5A0001" || id === "5A0004")) { rh = clamp(95 + gauss(1), 88, 99); at = 22 + 4 * s; }
+  st.m1 = clamp(st.m1 - (0.2 + 0.8 * s) * dry * dt * rnd(0.8, 1.2) + gauss(0.12), 6, 95);
+  st.m2 = clamp(st.m2 - (0.1 + 0.35 * s) * dry * dt * rnd(0.8, 1.2) + gauss(0.08), 10, 95);
+  const wet = rh > 90 || (h < 7 && rh > 86);
+  st.lwh = wet ? st.lwh + dt : Math.max(0, st.lwh - 2 * dt);
+  st.bv = clamp(st.bv + (s > 0.3 ? 0.03 : -0.012) * dt, 3.25, 4.15);
+  let flg = 0;
+  const [lo] = CROPS[n.crop] || CROPS.default;
+  if (st.m1 < lo - 4) flg |= 1;
+  if (at > 38) flg |= 4;
+  if (st.lwh >= 6) flg |= 8;
+  if (st.bv < 3.4) flg |= 16;
+  const kv = {};
+  const route = routeFor(id);
+  if (route.via) { kv.HOP = route.hop; kv.VIA = route.via; }
+  Object.assign(kv, { M1: r2(st.m1, 1), M2: r2(st.m2, 1), ST: r2(22 + 7 * s + gauss(0.2), 1), AT: r2(at, 1), RH: Math.round(rh),
+    LUX: Math.round(98000 * s ** 1.3 + rnd(0, 250)), LW: wet ? 1 : 0, LWH: r2(st.lwh, 1), BV: r2(st.bv), FLG: flg });
+  if (n.pro) { kv.PH = r2(6.6 + gauss(0.04)); kv.EC = r2(0.82 + gauss(0.02)); }
+  return build(id, "SOIL", ++st.seq, kv);
+}
+function genPond(id) {
+  const st = W[id], dt = (simT - st.last) / 3600; st.last = simT;
+  const s = sun(simT);
+  const wt = 27 + 4 * s + (sc === "heat" ? 3.5 : 0) + gauss(0.08);
+  let resp = 0.45, eff = 1.5;
+  if (sc === "night") { resp = 1.15; eff = 1.9; }
+  if (sc === "heat") resp = 0.8;
+  const aerWorks = sc !== "aer";
+  st.do = clamp(st.do + (1.1 * s - resp + (st.aer && aerWorks ? eff : 0)) * dt + gauss(0.03), 0.4, 11.5);
+  // node-side AUTO control exactly like BhoomiPondNode.ino (hysteresis + night failsafe on bad DO)
+  if (st.mode === "AUTO") { if (st.do < st.lo) st.aer = 1; else if (st.do > st.hi) st.aer = 0; }
+  else st.aer = st.mode === "ON" ? 1 : 0;
+  st.ph = clamp(st.ph + (0.12 * s - 0.06) * dt + gauss(0.004), 6.6, 9.2);
+  const sat = Math.exp(-139.34411 + 1.575701e5 / (wt + 273.15) - 6.642308e7 / (wt + 273.15) ** 2 + 1.2438e10 / (wt + 273.15) ** 3 - 8.621949e11 / (wt + 273.15) ** 4);
+  const cur = st.aer ? (aerWorks ? r2(0.32 + gauss(0.01)) : 0.01) : 0;
+  const flt = [];
+  if (st.aer && cur < 0.05) flt.push(10);
+  if (st.aer && aerWorks === false && st.do < 4.5) flt.push(11);
+  return build(id, "POND", ++st.seq, { DO: r2(st.do), DOS: Math.round((st.do / sat) * 100), PH: r2(st.ph), WT: r2(wt, 1), AER: st.aer,
+    AERI: cur, BV: r2(4.96 + gauss(0.015)), FLT: flt.length ? flt.join("|") : 0 });
+}
+function routeFor(id) {
+  const n = NODES[id];
+  if (sc === "relay" && id === "5A0003") return { via: "A1B2C3", hop: 1 };   // re-routes through the pond node
+  if (sc === "relay" && id === "5A0002") return null;                          // relay itself is down
+  return n.via ? { via: n.via, hop: 1 } : {};
+}
+
+// ---- hub-side state (mirrors bhoomi_hub)
+const H = { nodes: {}, packets: [], events: [], active: {}, rx: 0, dups: 0, seen: new Set(), relayCount: {}, hist: {} };
+for (const [id, n] of Object.entries(NODES)) {
+  H.nodes[id] = { id, type: n.type, name: n.name, zone: n.zone, crop: n.crop || "", x: n.x, y: n.y, data: {}, analysis: {}, flags: [],
+    last_seen: null, online: false, seq: null, link: { rssi: null, snr: null, hop: 0, via: null, rx: 0, pdr: null, relayed: 0 }, hist: {}, mode: "AUTO" };
+  H.hist[id] = {};
+}
+function remember(id, k, v) { (H.hist[id][k] = H.hist[id][k] || []).push([simT, v]); const a = H.hist[id][k]; while (a.length && simT - a[0][0] > 6.5 * 3600) a.shift(); }
+function slope(id, k, win, minSpan = 900) {
+  const pts = (H.hist[id][k] || []).filter((p) => simT - p[0] <= win);
+  if (pts.length < 3 || pts[pts.length - 1][0] - pts[0][0] < minSpan) return null;
+  const n = pts.length, mt = pts.reduce((s, p) => s + p[0], 0) / n, mv = pts.reduce((s, p) => s + p[1], 0) / n;
+  let num = 0, den = 0; for (const [t, v] of pts) { num += (t - mt) * (v - mv); den += (t - mt) ** 2; }
+  return den ? (num / den) * 3600 : null;
+}
+function setAlerts(id, list, scope = "data") {
+  const keys = new Set();
+  for (const [level, code, p] of list) {
+    const k = id + "|" + code; keys.add(k);
+    if (H.active[k]) Object.assign(H.active[k], { level, p });
+    else { H.active[k] = { ts: simT, node: id, level, code, p, scope }; if (level !== "info") H.events.push({ ...H.active[k] }); }
+  }
+  for (const k of Object.keys(H.active)) if (H.active[k].node === id && H.active[k].scope === scope && !keys.has(k)) delete H.active[k];
+}
+
+function analyzeSoil(id, f) {
+  const n = H.nodes[id], [lo, hi] = CROPS[n.crop] || CROPS.default, out = { moist_min: lo, moist_max: hi }, al = [];
+  const root = typeof f.M2 === "number" ? 0.6 * f.M1 + 0.4 * f.M2 : f.M1;
+  out.root_moisture = r2(root, 1); remember(id, "ROOT", root);
+  const tr = slope(id, "ROOT", 6 * 3600); out.moist_trend_ph = tr == null ? null : r2(tr);
+  if (root < lo) { out.moist_status = "dry"; al.push([root > lo - 8 ? "warn" : "crit", "SOIL_DRY", { v: r2(root, 1), min: lo }]); }
+  else if (root > hi) { out.moist_status = "wet"; al.push(["warn", "SOIL_WET", { v: r2(root, 1), max: hi }]); }
+  else { out.moist_status = "ok"; if (tr != null && tr < -0.05) { const hrs = (root - lo) / -tr; out.hours_to_dry = r2(hrs, 1); if (hrs < 12) al.push(["info", "SOIL_DRY_SOON", { h: r2(hrs, 1) }]); } }
+  const es = 0.6108 * Math.exp((17.27 * f.AT) / (f.AT + 237.3)); out.vpd = r2(Math.max(0, es * (1 - f.RH / 100)));
+  if (f.AT >= TH.heat) al.push(["warn", "HEAT", { v: f.AT }]);
+  let risk = 0; if (f.AT >= 15 && f.AT <= 30) risk++; if (f.RH >= 85) risk++; if (f.LWH >= 6) risk += 2; else if (f.LWH >= 3) risk++;
+  out.fungal_risk = ["low", "low", "medium", "high", "high"][Math.min(risk, 4)];
+  if (risk >= 3) al.push(["warn", "FUNGAL", { h: f.LWH }]);
+  if (typeof f.PH === "number") { out.ph_status = f.PH < TH.sph_min ? "low" : f.PH > TH.sph_max ? "high" : "ok"; if (out.ph_status === "low") al.push(["info", "SPH_LOW", { v: f.PH }]); if (out.ph_status === "high") al.push(["info", "SPH_HIGH", { v: f.PH }]); }
+  out.battery_pct = Math.round(clamp(((f.BV - 3.3) / 0.9) * 100, 0, 100));
+  if (f.BV < TH.bat_crit) al.push(["crit", "LOWBAT", { v: f.BV }]); else if (f.BV < TH.bat_low) al.push(["warn", "LOWBAT", { v: f.BV }]);
+  if (out.moist_status === "dry") out.advice = { code: "IRRIGATE", p: { zone: n.zone, crop: n.crop, d: r2(lo + (hi - lo) * 0.3 - root, 1) } };
+  else if (out.fungal_risk === "high") out.advice = { code: "FUNGAL_ADVICE", p: { zone: n.zone } };
+  else if (out.hours_to_dry != null && out.hours_to_dry < 24) out.advice = { code: "IRRIGATE_PLAN", p: { zone: n.zone, h: out.hours_to_dry } };
+  return [out, al];
+}
+function analyzePond(id, f) {
+  const out = {}, al = [];
+  const faults = String(f.FLT || 0).split("|").map(Number).filter(Boolean);
+  out.faults = faults.map((c) => ({ code: c }));
+  const d = f.DO;
+  out.do_status = d < TH.do_critical ? "critical" : d < TH.do_low ? "low" : d < TH.do_watch ? "watch" : "ok";
+  if (out.do_status === "critical") al.push(["crit", "DO_CRIT", { v: d }]); else if (out.do_status === "low") al.push(["warn", "DO_LOW", { v: d }]);
+  const tr = slope(id, "DO", 2 * 3600); out.do_trend_ph = tr == null ? null : r2(tr);
+  const h = localHour(simT);
+  if (tr != null && (h >= 17 || h < 6)) {
+    const hrs = ((6 - h + 24) % 24) || 24; out.hours_to_dawn = r2(hrs, 1); out.dawn_forecast = r2(Math.max(0, d + tr * hrs));
+    if (out.dawn_forecast < TH.do_low && d >= TH.do_low) al.push(["warn", "DO_DAWN", { v: r2(out.dawn_forecast, 1), h: r2(hrs, 1) }]);
+  }
+  out.ph_status = f.PH < TH.pond_ph_min || f.PH > TH.pond_ph_max ? "bad" : "ok";
+  if (out.ph_status === "bad") al.push(["warn", "PH_RANGE", { v: f.PH }]);
+  if (f.WT > TH.wt_max) al.push(["warn", "WT_HIGH", { v: f.WT }]);
+  faults.forEach((c) => al.push([c === 10 || c === 11 ? "crit" : "warn", "FLT_" + c, { c }]));
+  const st = W[id]; st.runSec = (st.runSec || 0) + (f.AER ? SIM_MIN_PER_TICK * 60 * order.length : 0);
+  out.aer_runtime_min = Math.round(st.runSec / 60);
+  if ((out.do_status === "critical" || out.do_status === "low") && !f.AER) out.advice = { code: "AER_ON_NOW", p: {} };
+  else if (out.dawn_forecast != null && out.dawn_forecast < TH.do_low) out.advice = { code: "AER_NIGHT", p: { v: r2(out.dawn_forecast, 1) } };
+  else if (out.ph_status === "bad") out.advice = { code: "PH_ADVICE", p: {} };
+  return [out, al];
+}
+
+function receive(raw, rssi, snr) {
+  H.rx++;
+  const f = parse(raw), id = f.ID, key = id + "|" + f.N + "|" + f.T;
+  const dup = H.seen.has(key);
+  H.packets.push({ ts: simT, node: id, raw, rssi, snr, dup });
+  if (H.packets.length > 40) H.packets.shift();
+  if (dup) { H.dups++; return; }
+  H.seen.add(key); if (H.seen.size > 500) H.seen = new Set([...H.seen].slice(-250));
+  if (f.T === "ACK") {
+    const n = H.nodes[id]; if (n && f.MODE) n.mode = f.MODE;
+    H.events.push({ ts: simT, node: id, level: "info", code: "CMD_ACK", p: { cmd: "AER=" + (f.MODE || "") } });
+    return;
+  }
+  const n = H.nodes[id];
+  n.data = Object.fromEntries(Object.entries(f).filter(([k]) => !["ID", "T", "N"].includes(k)));
+  n.seq = f.N; n.last_seen = simT; n.online = true;
+  const via = f.VIA || null;
+  n.link.rx++; n.link.hop = f.HOP || 0; n.link.via = via;
+  if (!via) { n.link.rssi = rssi; n.link.snr = snr; }
+  else { H.nodes[via].link.relayed = (H.nodes[via].link.relayed || 0) + 1; }
+  n.link.pdr = r2(clamp(0.93 + gauss(0.03), 0.8, 1), 2);
+  for (const k of ["DO", "PH", "WT", "M1", "M2", "AT", "RH", "ST"]) if (typeof f[k] === "number") remember(id, k, f[k]);
+  const [res, al] = n.type === "POND" ? analyzePond(id, f) : analyzeSoil(id, f);
+  n.analysis = res;
+  setAlerts(id, al, "data");
+  setAlerts(id, [], "link");
+}
+
+// ---- main loop: one node transmits per tick (round-robin) = every node every 15 sim-min
+let oi = 0, cb = null;
+const order = Object.keys(NODES);
+function tick() {
+  simT += SIM_MIN_PER_TICK * 60;
+  const id = order[oi++ % order.length];
+  const route = routeFor(id);
+  if (route !== null && Math.random() > 0.03) {
+    const raw = NODES[id].type === "POND" ? genPond(id) : genSoil(id);
+    const rssi = route.via ? -88 + gauss(3) : { A1B2C3: -101, "5A0001": -94, "5A0002": -103, "5A0003": -114, "5A0004": -112 }[id] + gauss(2.5);
+    receive(raw, Math.round(rssi), r2(route.via ? 7 + gauss(1) : (rssi + 112) / 2 + gauss(1), 1));
+    if (cb && route.via && Math.random() < 0.35) setTimeout(() => { receive(raw, Math.round(rssi - 9), r2(-3 + gauss(1), 1)); emit(); }, 500);
+  } else if (route === null) W[id].last = simT;
+  // pending acks
+  const p = W.A1B2C3;
+  if (p.ack.length) { const a = p.ack.shift(); receive(build("A1B2C3", "ACK", a.seq, { DST: HUB, OK: 1, MODE: a.mode }), -99, 5.5); }
+  // offline detection: 3 x 15 min
+  for (const n of Object.values(H.nodes)) {
+    if (n.last_seen == null) continue;
+    const silent = simT - n.last_seen;
+    if (silent > 45 * 60) { n.online = false; setAlerts(n.id, [[n.type === "POND" ? "crit" : "warn", "OFFLINE", { m: Math.round(silent / 60) }]], "link"); }
+  }
+  emit();
+}
+function score() { let s = 100; for (const a of Object.values(H.active)) s -= { crit: 22, warn: 9, info: 3 }[a.level] || 0; return Math.max(0, s); }
+function edges() {
+  const e = [];
+  for (const n of Object.values(H.nodes)) { if (n.link.via) { e.push({ a: n.id, b: n.link.via }); e.push({ a: n.link.via, b: HUB }); } else if (n.last_seen) e.push({ a: n.id, b: HUB }); }
+  const u = {}; e.forEach((x) => (u[x.a + x.b] = x)); return Object.values(u);
+}
+function snapshot() {
+  const nodes = {};
+  for (const [id, n] of Object.entries(H.nodes)) {
+    const keys = n.type === "POND" ? ["DO", "PH", "WT"] : ["M1", "M2", "AT", "RH"];
+    nodes[id] = { ...n, data: { ...n.data, MODE: W[id].mode }, link: { ...n.link }, age_s: n.last_seen ? simT - n.last_seen : null,
+      hist: Object.fromEntries(keys.map((k) => [k, (H.hist[id][k] || []).slice()])) };
+  }
+  const order = { crit: 0, warn: 1, info: 2 };
+  H.events = H.events.slice(-20);
+  return { v: 1, now: simT, hub: { id: HUB, name: "BHOOMI Hub", farm: "BHOOMI Demo Farm · Andhra Pradesh", mode: "demo",
+      radios: [{ name: "lora-865", freq: 865.0625, ok: true }, { name: "lora-433", freq: 433.5, ok: true }], rx: H.rx, dups: H.dups },
+    nodes, edges: edges(), alerts: Object.values(H.active).sort((a, b) => order[a.level] - order[b.level] || b.ts - a.ts),
+    events: H.events.slice(), score: score(), packets: H.packets.slice(-25) };
+}
+function emit() { if (cb) cb(snapshot()); }
+
+// warm-up: 6 simulated hours of history so the charts are full on first paint
+function warmup() {
+  const save = cb; cb = null;
+  simT -= 6 * 3600;
+  for (let i = 0; i < (6 * 60) / SIM_MIN_PER_TICK; i++) tick();
+  H.events = []; cb = save;
+}
+
+window.BhoomiDemo = {
+  scenarios: ["normal", "night", "dry", "fungal", "relay", "aer", "heat"],
+  current: "normal",
+  start(fn) { warmup(); cb = fn; emit(); setInterval(tick, TICK_MS); },
+  scenario(name) {
+    sc = name; this.current = name;
+    if (name === "normal") { resetWorld(); }
+    if (name === "night") { const h = localHour(simT); if (h > 5 && h < 17) simT += ((19 - h) * 3600); W.A1B2C3.do = Math.min(W.A1B2C3.do, 5.6); W.A1B2C3.mode = "AUTO"; }
+    if (name === "aer") { W.A1B2C3.do = Math.min(W.A1B2C3.do, 4.3); W.A1B2C3.mode = "AUTO"; }
+    if (name === "dry") W["5A0002"].m1 = Math.min(W["5A0002"].m1, 33);
+    if (name === "fungal") { W["5A0001"].lwh = Math.max(W["5A0001"].lwh, 4.5); }
+    if (name === "heat") { const h = localHour(simT); if (h < 10 || h > 15) simT += (((13 - h) + 24) % 24) * 3600; }
+    emit();
+  },
+  command(node, cmd) {
+    const st = W[node]; if (!st) return;
+    if (cmd.AER) { st.mode = cmd.AER; st.ack.push({ seq: Math.floor(Math.random() * 60000), mode: cmd.AER }); }
+    const raw = build(HUB, "CMD", Math.floor(Math.random() * 60000), { DST: node, ...cmd, TS: Math.floor(simT) });
+    H.packets.push({ ts: simT, node: HUB, raw, rssi: null, snr: null, dup: false });
+    emit();
+  },
+};
+})();
+
+</script>
+<script>
+/* BHOOMI dashboard – renders the hub snapshot (live via SSE, or the built-in demo). */
+(() => {
+"use strict";
+const I18N = window.BHOOMI_I18N;
+const BOOT = window.BHOOMI_BOOT || { live: false };
+const LANGS = ["en", "te", "hi", "ta", "kn"];
+const $ = (id) => document.getElementById(id);
+const store = {
+  get(k) { try { return localStorage.getItem("bhoomi." + k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem("bhoomi." + k, v); } catch (e) {} },
+  sget(k) { try { return sessionStorage.getItem("bhoomi." + k); } catch (e) { return null; } },
+  sset(k, v) { try { sessionStorage.setItem("bhoomi." + k, v); } catch (e) {} },
+};
+
+let lang = LANGS.includes(store.get("lang")) ? store.get("lang") : "en";
+let rotate = store.get("rotate") === "1";
+let S = null;                 // latest snapshot
+let connected = false, lastMsg = 0;
+let selSoil = null, pinUntil = 0, cycleAt = 0;
+const SOIL_CYCLE_MS = 12000;
+const seenPackets = new Set(), seenEvents = new Set(), shownAlerts = new Set();
+
+/* ------------------------------------------------------------------ i18n */
+function t(k, p) {
+  let s = (I18N[lang] && I18N[lang][k]) ?? I18N.en[k] ?? k;
+  if (p) s = s.replace(/\{(\w+)\}/g, (m, x) => (p[x] !== undefined && p[x] !== null ? p[x] : m));
+  return s;
+}
+const short = (n) => (n || "").replace(/^BHOOMI_/, "");
+function nodeName(id) { const n = S && S.nodes[id]; return n ? n.name : id; }
+function cropName(c) { return t("c_" + (c || "default")); }
+function alertText(a) {
+  const key = a.code.startsWith("FLT_") ? a.code : "A_" + a.code;
+  return t(key, { ...a.p, node: short(nodeName(a.node)) });
+}
+function adviceText(a) {
+  const p = { ...a.p };
+  if (p.crop !== undefined) p.crop = cropName(p.crop);
+  return t("V_" + a.code, p);
+}
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i]").forEach((el) => { el.textContent = t(el.dataset.i); });
+  buildLangBar();
+  if (S) render(S, true);
+}
+function buildLangBar() {
+  const box = $("langs");
+  box.innerHTML = "";
+  LANGS.forEach((l) => {
+    const b = document.createElement("button");
+    b.textContent = I18N[l]._short; b.title = I18N[l]._name;
+    if (l === lang) b.className = "on";
+    b.onclick = () => { lang = l; store.set("lang", l); applyLang(); };
+    box.appendChild(b);
+  });
+  const r = document.createElement("button");
+  r.className = "rot" + (rotate ? " on" : ""); r.textContent = "⟳"; r.title = t("lang_rotate");
+  r.onclick = () => { rotate = !rotate; store.set("rotate", rotate ? "1" : "0"); buildLangBar(); };
+  box.appendChild(r);
+}
+setInterval(() => {
+  if (!rotate) return;
+  lang = LANGS[(LANGS.indexOf(lang) + 1) % LANGS.length];
+  applyLang();
+}, 20000);
+
+/* --------------------------------------------------------------- helpers */
+const COLORS = { ok: "var(--ok)", watch: "var(--watch)", warn: "var(--warn)", crit: "var(--crit)",
+  info: "var(--info)", cold: "var(--cold)", dim: "var(--dim)" };
+const HEX = { ok: "#43c07f", watch: "#e3c34b", warn: "#f0903a", crit: "#ef5350", info: "#56a8e8", cold: "#5fb7d4", dim: "#5f776b" };
+const num = (v) => typeof v === "number" && isFinite(v);
+const fmt = (v, d = 1) => (num(v) ? v.toFixed(d) : "—");
+function ago(s) {
+  if (s == null) return "—";
+  if (s < 90) return t("ago_s", { n: Math.max(0, Math.round(s)) });
+  if (s < 5400) return t("ago_m", { n: Math.round(s / 60) });
+  return t("ago_h", { n: Math.round(s / 3600) });
+}
+function sigBars(rssi) {
+  const n = rssi == null ? 0 : rssi > -85 ? 4 : rssi > -97 ? 3 : rssi > -108 ? 2 : 1;
+  return `<span class="sig">${[1, 2, 3, 4].map((i) => `<i class="${i <= n ? "on" : ""}" style="height:${25 + i * 18}%"></i>`).join("")}</span>`;
+}
+function batHtml(pct) {
+  if (!num(pct)) return "—";
+  const c = pct < 15 ? HEX.crit : pct < 35 ? HEX.warn : HEX.ok;
+  return `<span class="bat"><b><i style="width:${Math.max(4, pct * 0.92)}%;background:${c}"></i></b>${Math.round(pct)}%</span>`;
+}
+function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function toast(msg) {
+  const el = $("toast"); el.textContent = msg; el.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove("show"), 3500);
+}
+
+/* ---------------------------------------------------------------- gauges */
+const CX = 100, CY = 96, R = 72, A0 = 150, SWEEP = 240;
+const rad = (a) => (a * Math.PI) / 180;
+const pt = (a, r) => [CX + r * Math.cos(rad(a)), CY + r * Math.sin(rad(a))];
+function arc(a1, a2, r) {
+  const [x1, y1] = pt(a1, r), [x2, y2] = pt(a2, r);
+  return `M${x1.toFixed(2)} ${y1.toFixed(2)}A${r} ${r} 0 ${a2 - a1 > 180 ? 1 : 0} 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+}
+class Gauge {
+  constructor(host, o) {
+    this.o = o;
+    this.el = document.createElement("div");
+    this.el.className = "gauge";
+    this.L = R * rad(SWEEP);
+    this.el.innerHTML = `<div class="gt" data-i="${o.key}">${t(o.key)}</div>
+      <svg viewBox="0 0 200 152">
+        <path d="${arc(A0, A0 + SWEEP, R)}" stroke="#1b2b24" stroke-width="15" fill="none" stroke-linecap="round"/>
+        <g class="bands"></g><g class="ticks"></g>
+        <path class="valarc" d="${arc(A0, A0 + SWEEP, R)}" stroke="#43c07f" stroke-width="15" fill="none" stroke-linecap="round"
+          stroke-dasharray="${this.L}" stroke-dashoffset="${this.L}" opacity=".9"/>
+        <g class="needle" style="transform:rotate(${A0}deg)">
+          <path d="M${CX - 10} ${CY - 3.2} L${CX + R - 6} ${CY} L${CX - 10} ${CY + 3.2} Z" fill="#e8f1ec"/>
+        </g>
+        <circle cx="${CX}" cy="${CY}" r="8" fill="#0f1a16" stroke="#e8f1ec" stroke-width="2.5"/>
+        <text class="vt" x="${CX}" y="131" text-anchor="middle" fill="#e8f1ec" font-size="25" font-weight="700" font-family="var(--font)">—</text>
+        <text class="ut" x="${CX}" y="147" text-anchor="middle" fill="#8ea79a" font-size="11" font-family="var(--font)">${o.unit || ""}</text>
+      </svg><div class="gs"><span class="chip">—</span></div>`;
+    host.appendChild(this.el);
+    this.$ = (s) => this.el.querySelector(s);
+    this.setBands(o.bands, o.min, o.max);
+  }
+  setBands(bands, min = this.o.min, max = this.o.max) {
+    this.o.bands = bands; this.o.min = min; this.o.max = max;
+    let from = min, g = "", tk = "";
+    for (const b of bands) {
+      const to = Math.min(max, b.to);
+      if (to > from) {
+        const a1 = A0 + ((from - min) / (max - min)) * SWEEP, a2 = A0 + ((to - min) / (max - min)) * SWEEP;
+        g += `<path d="${arc(a1 + 0.6, a2 - 0.6, R + 13)}" stroke="${HEX[b.c]}" stroke-width="4" fill="none" opacity=".85"/>`;
+      }
+      from = Math.max(from, to);
+    }
+    for (let i = 0; i <= 10; i++) {
+      const a = A0 + (i / 10) * SWEEP, major = i % 5 === 0;
+      const [x1, y1] = pt(a, R - 11), [x2, y2] = pt(a, R - (major ? 19 : 15));
+      tk += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${major ? "#8ea79a" : "#3c5649"}" stroke-width="${major ? 1.6 : 1}"/>`;
+      if (major) {
+        const val = min + (i / 10) * (max - min), lab = this.o.tick ? this.o.tick(val) : +val.toFixed(1);
+        let lx, ly;
+        if (i === 5) { [lx, ly] = pt(a, R - 29); ly += 3.5; }
+        else { [lx, ly] = pt(a, R); ly += 15; lx += i === 0 ? -4 : 4; }
+        tk += `<text x="${lx}" y="${ly}" text-anchor="middle" fill="#6f897c" font-size="10.5" font-family="var(--font)">${lab}</text>`;
+      }
+    }
+    this.$(".bands").innerHTML = g;
+    this.$(".ticks").innerHTML = tk;
+    if (this.v !== undefined) this.set(this.v, this.st);
+  }
+  statusOf(v) {
+    for (const b of this.o.bands) if (v < b.to) return b;
+    return this.o.bands[this.o.bands.length - 1];
+  }
+  set(v, override) {
+    this.v = v; this.st = override;
+    const { min, max } = this.o;
+    if (!num(v)) {
+      this.el.classList.add("na");
+      this.$(".vt").textContent = "—";
+      this.$(".gs").innerHTML = `<span class="chip">${t("st_invalid")}</span>`;
+      this.$(".valarc").style.strokeDashoffset = this.L;
+      this.$(".needle").style.transform = `rotate(${A0}deg)`;
+      this.el.className = "gauge na";
+      return;
+    }
+    const f = Math.max(0, Math.min(1, (v - min) / (max - min)));
+    const b = override || this.statusOf(v);
+    this.el.className = "gauge" + (b.c === "crit" ? " st-crit" : b.c === "warn" ? " st-warn" : "");
+    this.$(".needle").style.transform = `rotate(${A0 + f * SWEEP}deg)`;
+    const va = this.$(".valarc");
+    va.style.strokeDashoffset = this.L * (1 - f);
+    va.setAttribute("stroke", HEX[b.c] || HEX.ok);
+    this.$(".vt").textContent = this.o.fmt ? this.o.fmt(v) : v.toFixed(this.o.dec ?? 1);
+    this.$(".gs").innerHTML = `<span class="chip ${b.c}">${t(b.s)}</span>`;
+  }
+}
+
+const POND_G = [
+  { id: "DO", key: "DO", min: 0, max: 12, unit: "mg/L", dec: 2,
+    bands: [{ to: 3, c: "crit", s: "st_critical" }, { to: 4, c: "warn", s: "st_low" }, { to: 5, c: "watch", s: "st_watch" }, { to: 99, c: "ok", s: "st_ok" }] },
+  { id: "PH", key: "PH", min: 4, max: 10, unit: "pH", dec: 2,
+    bands: [{ to: 6.5, c: "warn", s: "st_low" }, { to: 8.8, c: "ok", s: "st_ok" }, { to: 99, c: "warn", s: "st_high" }] },
+  { id: "WT", key: "WT", min: 15, max: 40, unit: "°C", dec: 1,
+    bands: [{ to: 20, c: "cold", s: "st_cold" }, { to: 33, c: "ok", s: "st_ok" }, { to: 36, c: "warn", s: "st_hot" }, { to: 99, c: "crit", s: "st_hot" }] },
+  { id: "DOS", key: "DOS", min: 0, max: 150, unit: "%", dec: 0,
+    bands: [{ to: 40, c: "crit", s: "st_low" }, { to: 60, c: "warn", s: "st_low" }, { to: 125, c: "ok", s: "st_ok" }, { to: 999, c: "watch", s: "st_high" }] },
+];
+const moistBands = (lo, hi) => [
+  { to: Math.max(1, lo - 8), c: "crit", s: "st_dry" }, { to: lo, c: "warn", s: "st_low" },
+  { to: hi, c: "ok", s: "st_ok" }, { to: 101, c: "cold", s: "st_wet" }];
+const SOIL_G = [
+  { id: "M1", key: "M1", min: 0, max: 100, unit: "%", dec: 1, bands: moistBands(25, 65) },
+  { id: "M2", key: "M2", min: 0, max: 100, unit: "%", dec: 1, bands: moistBands(25, 65) },
+  { id: "ST", key: "ST", min: 10, max: 45, unit: "°C", dec: 1,
+    bands: [{ to: 15, c: "cold", s: "st_cold" }, { to: 35, c: "ok", s: "st_ok" }, { to: 99, c: "warn", s: "st_hot" }] },
+  { id: "AT", key: "AT", min: 10, max: 50, unit: "°C", dec: 1,
+    bands: [{ to: 15, c: "cold", s: "st_cold" }, { to: 35, c: "ok", s: "st_ok" }, { to: 38, c: "watch", s: "st_hot" }, { to: 99, c: "crit", s: "st_hot" }] },
+  { id: "RH", key: "RH", min: 0, max: 100, unit: "%", dec: 0,
+    bands: [{ to: 30, c: "warn", s: "st_low" }, { to: 85, c: "ok", s: "st_ok" }, { to: 101, c: "cold", s: "st_humid" }] },
+  { id: "LUX", key: "LUX", min: 0, max: 120000, unit: "klx", fmt: (v) => (v / 1000).toFixed(v < 10000 ? 1 : 0),
+    tick: (v) => Math.round(v / 1000),
+    bands: [{ to: 2000, c: "dim", s: "st_dark" }, { to: 80000, c: "ok", s: "st_ok" }, { to: 1e9, c: "watch", s: "st_bright" }] },
+  { id: "LWH", key: "LWH", min: 0, max: 24, unit: "h", dec: 1,
+    bands: [{ to: 3, c: "ok", s: "risk_low" }, { to: 6, c: "watch", s: "risk_medium" }, { to: 99, c: "crit", s: "risk_high" }] },
+  { id: "X8", key: "SPH", min: 4, max: 10, unit: "pH", dec: 2,
+    bands: [{ to: 5.5, c: "warn", s: "st_low" }, { to: 8, c: "ok", s: "st_ok" }, { to: 99, c: "warn", s: "st_high" }] },
+];
+const VPD_DEF = { key: "VPD", min: 0, max: 4, unit: "kPa", dec: 2,
+  bands: [{ to: 0.4, c: "cold", s: "st_humid" }, { to: 1.6, c: "ok", s: "st_ok" }, { to: 99, c: "warn", s: "st_high" }] };
+const SPH_DEF = { ...SOIL_G[7] };
+
+const pg = {}, sg = {};
+POND_G.forEach((o) => (pg[o.id] = new Gauge($("pGauges"), { ...o })));
+SOIL_G.forEach((o) => (sg[o.id] = new Gauge($("sGauges"), { ...o })));
+let x8mode = "SPH";
+function setX8(mode) {
+  if (x8mode === mode) return;
+  x8mode = mode;
+  const d = mode === "SPH" ? SPH_DEF : VPD_DEF, g = sg.X8;
+  g.o.key = d.key; g.o.unit = d.unit; g.o.dec = d.dec;
+  g.el.querySelector(".gt").dataset.i = d.key;
+  g.el.querySelector(".gt").textContent = t(d.key);
+  g.el.querySelector(".ut").textContent = d.unit;
+  g.setBands(d.bands, d.min, d.max);
+}
+
+/* ---------------------------------------------------------------- charts */
+function lineChart(svg, o) {
+  const w = Math.max(200, Math.round(svg.clientWidth || 400)), h = Math.round(svg.clientHeight || 110);
+  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  svg.setAttribute("preserveAspectRatio", "none");
+  const padL = 26, padR = 6, padT = 6, padB = 16;
+  const t1 = o.t1, t0 = o.t0;
+  const X = (tt) => padL + ((tt - t0) / (t1 - t0)) * (w - padL - padR);
+  const Y = (v) => padT + (1 - (v - o.ymin) / (o.ymax - o.ymin)) * (h - padT - padB);
+  let g = "";
+  if (o.band) g += `<rect x="${padL}" y="${Y(o.band[1])}" width="${w - padL - padR}" height="${Math.max(0, Y(o.band[0]) - Y(o.band[1]))}" fill="rgba(67,192,127,.09)"/>`;
+  for (const yv of o.grid || []) {
+    g += `<line x1="${padL}" x2="${w - padR}" y1="${Y(yv)}" y2="${Y(yv)}" stroke="#1d2e27"/>`;
+    g += `<text x="${padL - 4}" y="${Y(yv) + 3.5}" text-anchor="end" fill="#5f776b" font-size="10">${yv}</text>`;
+  }
+  for (const l of o.lines || []) g += `<line x1="${padL}" x2="${w - padR}" y1="${Y(l.y)}" y2="${Y(l.y)}" stroke="${l.c}" stroke-dasharray="4 4" opacity=".8"/>`;
+  for (let i = 0; i <= 3; i++) {
+    const tt = t0 + (i / 3) * (t1 - t0);
+    g += `<text x="${X(tt)}" y="${h - 3}" text-anchor="${i === 0 ? "start" : i === 3 ? "end" : "middle"}" fill="#5f776b" font-size="10">${hhmm(tt)}</text>`;
+  }
+  o.series.forEach((s, si) => {
+    const pts = (s.pts || []).filter((p) => p[0] >= t0 - 60 && num(p[1]));
+    if (pts.length < 2) return;
+    const d = pts.map((p, i) => `${i ? "L" : "M"}${X(p[0]).toFixed(1)} ${Y(Math.max(o.ymin, Math.min(o.ymax, p[1]))).toFixed(1)}`).join("");
+    if (s.fill) {
+      g += `<defs><linearGradient id="gf${si}${svg.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.c}" stop-opacity=".35"/><stop offset="1" stop-color="${s.c}" stop-opacity="0"/></linearGradient></defs>`;
+      g += `<path d="${d}L${X(pts[pts.length - 1][0])} ${Y(o.ymin)}L${X(pts[0][0])} ${Y(o.ymin)}Z" fill="url(#gf${si}${svg.id})"/>`;
+    }
+    g += `<path d="${d}" fill="none" stroke="${s.c}" stroke-width="${s.w || 2}" stroke-linejoin="round" ${s.dash ? 'stroke-dasharray="5 4"' : ""}/>`;
+    const lp = pts[pts.length - 1];
+    g += `<circle cx="${X(lp[0])}" cy="${Y(lp[1])}" r="3.5" fill="${s.c}" stroke="#0b1310" stroke-width="1.5"/>`;
+  });
+  if (o.forecast) {
+    const f = o.forecast;
+    g += `<line x1="${X(f[0][0])}" y1="${Y(f[0][1])}" x2="${X(f[1][0])}" y2="${Y(Math.max(o.ymin, f[1][1]))}" stroke="#e3c34b" stroke-width="1.6" stroke-dasharray="3 3"/>`;
+  }
+  svg.innerHTML = g;
+}
+function hhmm(ts) {
+  try {
+    return new Intl.DateTimeFormat("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Kolkata" }).format(new Date(ts * 1000));
+  } catch (e) { const d = new Date(ts * 1000); return d.getHours() + ":" + String(d.getMinutes()).padStart(2, "0"); }
+}
+
+/* ---------------------------------------------------------------- render */
+function render(s, force) {
+  S = s;
+  const nodes = Object.values(s.nodes);
+  const now = s.now;
+  $("farm").textContent = s.hub.farm || "";
+
+  // ---- pond (first pond node)
+  const pond = nodes.find((n) => n.type === "POND");
+  if (pond) renderPond(pond, now);
+
+  // ---- soil
+  const soils = nodes.filter((n) => n.type === "SOIL");
+  if (soils.length) {
+    if (!selSoil || !s.nodes[selSoil]) selSoil = soils[0].id;
+    renderTabs(soils);
+    renderSoil(s.nodes[selSoil], now);
+    renderTable(soils, now);
+  }
+
+  // ---- alerts
+  const al = $("alist");
+  if (!s.alerts.length) al.innerHTML = `<div class="okmsg"><svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#43c07f" stroke-width="2"/><path d="M7 12.5l3 3 7-7" stroke="#43c07f" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>${t("all_ok")}</div>`;
+  else al.innerHTML = s.alerts.slice(0, 14).map((a) => {
+    const k = a.node + a.code, fresh = !shownAlerts.has(k);
+    shownAlerts.add(k);
+    return `<div class="al ${a.level}${fresh ? " fresh" : ""}"><div class="tx">${esc(alertText(a))}</div><div class="ti">${hhmm(a.ts)}</div></div>`;
+  }).join("");
+  for (const k of [...shownAlerts]) if (!s.alerts.some((a) => a.node + a.code === k)) shownAlerts.delete(k);
+  const nc = s.alerts.filter((a) => a.level === "crit").length, nw = s.alerts.filter((a) => a.level === "warn").length;
+  $("aCount").innerHTML = (nc ? `<span class="chip crit">${nc}</span>` : "") + (nw ? `<span class="chip warn">${nw}</span>` : "") +
+    (s.alerts.length - nc - nw ? `<span class="chip info">${s.alerts.length - nc - nw}</span>` : "");
+
+  // ---- advice
+  const adv = [];
+  const seen = new Set();
+  nodes.sort((a, b) => (a.type === "POND" ? -1 : 1)).forEach((n) => {
+    const a = n.analysis && n.analysis.advice;
+    if (a && n.online) { const k = a.code + JSON.stringify(a.p); if (!seen.has(k)) { seen.add(k); adv.push(a); } }
+  });
+  $("advice").innerHTML = adv.length ? adv.slice(0, 4).map((a, i) => `<div class="adv"><span class="n">${i + 1}</span><span>${esc(adviceText(a))}</span></div>`).join("")
+    : `<div class="mut" style="font-size:.9rem;padding:.3rem 0">${s.alerts.length ? "—" : t("all_ok")}</div>`;
+
+  // ---- score
+  const sc = s.score, col = sc >= 80 ? HEX.ok : sc >= 55 ? HEX.watch : sc >= 35 ? HEX.warn : HEX.crit;
+  $("scArc").style.strokeDashoffset = 100.5 * (1 - sc / 100);
+  $("scArc").setAttribute("stroke", col);
+  $("scTx").textContent = sc;
+
+  // ---- events -> toast
+  for (const e of s.events || []) {
+    const k = e.ts + e.code + e.node;
+    if (seenEvents.has(k)) continue;
+    seenEvents.add(k);
+    if (!force && Date.now() - startedAt > 3000 && (e.code.startsWith("CMD_") || e.level === "crit")) toast(alertText(e));
+  }
+
+  // ---- ticker + footer
+  renderTicker(s, pond, soils);
+  const r = s.hub.radios || [];
+  $("fmeta").textContent = `${t("hub")} ${s.hub.id} · ${r.map((x) => (x.freq ? x.freq + " MHz" : x.name) + (x.ok ? "" : " ✕")).join(" · ")} · ${s.hub.dups || 0} ${t("dup")}`;
+  setMode();
+}
+
+function renderPond(n, now) {
+  const d = n.data || {}, a = n.analysis || {}, l = n.link || {};
+  $("pName").textContent = n.name;
+  $("pLink").innerHTML = `${n.online ? "" : `<span class="chip crit">${t("offline_n")}</span>`}${sigBars(l.rssi)} ${l.rssi != null ? l.rssi + " dBm" : ""} · ${ago(n.age_s)}`;
+  const faults = (a.faults || []).map((f) => f.code);
+  const doOverride = a.do_status === "invalid" ? { c: "dim", s: "st_invalid" } : null;
+  pg.DO.set(a.do_status === "invalid" ? null : d.DO, doOverride);
+  pg.PH.set(faults.includes(4) || faults.includes(5) ? null : d.PH);
+  pg.WT.set(faults.includes(6) ? null : d.WT);
+  pg.DOS.set(d.DOS);
+  const on = +d.AER === 1, fault = faults.includes(10) || faults.includes(11);
+  const box = $("aer");
+  box.className = "aer" + (on ? " run" : "") + (fault ? " fault" : "");
+  $("aerSt").textContent = on ? t("on") : t("off");
+  $("aerSt").style.color = fault ? HEX.crit : on ? HEX.ok : "";
+  const mode = (d.MODE || n.mode || "AUTO").toUpperCase();
+  $("aerMode").textContent = t(mode.toLowerCase());
+  $("aerI").textContent = (num(d.AERI) ? d.AERI.toFixed(2) : "—") + " A";
+  document.querySelectorAll("#ctl button").forEach((b) => b.classList.toggle("sel", b.dataset.cmd === mode));
+  // chart
+  const t1 = now, t0 = now - 6 * 3600;
+  const fc = num(a.dawn_forecast) && num(a.hours_to_dawn) && a.hours_to_dawn < 13
+    ? [[now, d.DO], [Math.min(now + 3600 * 1.2, now + a.hours_to_dawn * 3600), d.DO + (a.dawn_forecast - d.DO) * Math.min(1, 1.2 / a.hours_to_dawn)]] : null;
+  lineChart($("doChart"), { t0, t1: fc ? now + 3600 * 1.2 : t1, ymin: 0, ymax: 12, grid: [0, 4, 8, 12],
+    band: [5, 12], lines: [{ y: 4, c: HEX.warn }, { y: 3, c: HEX.crit }],
+    series: [{ pts: (n.hist || {}).DO, c: "#56a8e8", fill: true, w: 2.2 }], forecast: fc });
+  const dos = (n.hist || {}).DO || [];
+  if (dos.length) { const vs = dos.map((p) => p[1]); $("doRange").textContent = `${Math.min(...vs).toFixed(1)}–${Math.max(...vs).toFixed(1)} mg/L`; }
+  // stats
+  const tr = a.do_trend_ph;
+  $("sTrend").innerHTML = num(tr) ? `<span style="color:${tr < -0.3 ? HEX.warn : tr > 0.1 ? HEX.ok : ""}">${tr > 0 ? "▲" : tr < 0 ? "▼" : "■"} ${Math.abs(tr).toFixed(2)}</span> <small>mg/L${t("per_h")}</small>` : "—";
+  $("sDawn").innerHTML = num(a.dawn_forecast) ? `<span style="color:${a.dawn_forecast < 4 ? HEX.warn : HEX.ok}">${a.dawn_forecast.toFixed(1)}</span> <small>mg/L</small>` : "—";
+  $("sRun").innerHTML = num(a.aer_runtime_min) ? `${a.aer_runtime_min} <small>${t("min")}</small>` : "—";
+}
+
+function renderTabs(soils) {
+  const box = $("tabs");
+  const ids = soils.map((n) => n.id + (n.online ? 1 : 0) + (selSoil === n.id ? "s" : "")).join();
+  if (box.dataset.sig === ids + lang) return;
+  box.dataset.sig = ids + lang;
+  box.innerHTML = "";
+  soils.forEach((n) => {
+    const b = document.createElement("button");
+    b.className = "tab" + (n.id === selSoil ? " on" : "");
+    b.innerHTML = `<span class="sd" style="background:${n.online ? HEX.ok : HEX.dim}"></span>${esc(short(n.name))}<span class="bar" style="animation-duration:${SOIL_CYCLE_MS}ms"></span>`;
+    b.onclick = () => { selSoil = n.id; pinUntil = Date.now() + 60000; cycleAt = Date.now() + SOIL_CYCLE_MS; render(S, true); };
+    box.appendChild(b);
+  });
+}
+
+let lastCrop = "";
+function renderSoil(n, now) {
+  const d = n.data || {}, a = n.analysis || {}, l = n.link || {};
+  $("sName").textContent = n.name;
+  $("sLink").innerHTML = `${n.online ? "" : `<span class="chip crit">${t("offline_n")}</span>`}${sigBars(l.rssi)} ${l.hop ? `${t("via")} ${esc(short(nodeName(l.via)))}` : t("direct")} · ${ago(n.age_s)}`;
+  const lo = a.moist_min ?? 25, hi = a.moist_max ?? 65;
+  if (lastCrop !== lo + "/" + hi) { lastCrop = lo + "/" + hi; sg.M1.setBands(moistBands(lo, hi)); sg.M2.setBands(moistBands(lo, hi)); }
+  ["M1", "M2", "ST", "AT", "RH", "LUX", "LWH"].forEach((k) => sg[k].set(d[k]));
+  if (num(d.PH)) { setX8("SPH"); sg.X8.set(d.PH); } else { setX8("VPD"); sg.X8.set(a.vpd); }
+  // moisture chart
+  const h = n.hist || {};
+  lineChart($("mChart"), { t0: now - 6 * 3600, t1: now, ymin: 0, ymax: 100, grid: [0, 50, 100], band: [lo, hi],
+    series: [{ pts: h.M1, c: "#a4e05a", w: 2.2, fill: true }, { pts: h.M2, c: "#e8b04a", w: 1.8, dash: true }] });
+  $("mLegend").innerHTML = `<span style="color:#a4e05a">━ 15</span> <span style="color:#e8b04a">┅ 30 cm</span>`;
+  // key/values
+  const rm = a.root_moisture, mcol = a.moist_status === "dry" ? HEX.crit : a.moist_status === "wet" ? HEX.cold : HEX.ok;
+  const fr = a.fungal_risk || "low", frc = fr === "high" ? "crit" : fr === "medium" ? "watch" : "ok";
+  $("sKv").innerHTML = `
+    <span class="k">${t("crop")}</span><span class="v">${esc(cropName(n.crop))} · ${esc(n.zone || "")}</span>
+    <span class="k" style="grid-column:1/3">${t("root")} <b style="float:right;color:${mcol}">${fmt(rm)}%</b>
+      <div class="mbar"><div class="band" style="left:${lo}%;width:${hi - lo}%"></div><div class="fill" style="width:${Math.min(100, rm || 0)}%;background:${mcol}"></div></div></span>
+    <span class="k">${t("fungal")}</span><span class="v"><span class="chip ${frc}">${t("risk_" + fr)}</span></span>
+    <span class="k">${t("VPD")}</span><span class="v">${fmt(a.vpd, 2)} kPa</span>
+    <span class="k">${t("battery")}</span><span class="v">${batHtml(a.battery_pct)} <span class="mut">${fmt(d.BV, 2)} V</span></span>
+    <span class="k">${t("signal")}</span><span class="v">${l.rssi != null ? l.rssi + " dBm / " + fmt(l.snr) + " dB" : (l.hop ? `${t("hops")}: ${l.hop}` : "—")}</span>
+    <span class="k">${t("last_seen")}</span><span class="v">${ago(n.age_s)}</span>`;
+}
+
+function renderTable(soils, now) {
+  let h = `<tr><th></th><th>${t("crop")}</th><th>${t("root")}</th><th>${t("AT")}</th><th>${t("RH")}</th><th>${t("battery")}</th><th>${t("signal")}</th><th>${t("last_seen")}</th></tr>`;
+  for (const n of soils) {
+    const a = n.analysis || {}, d = n.data || {}, l = n.link || {};
+    const rm = a.root_moisture, c = a.moist_status === "dry" ? HEX.crit : a.moist_status === "wet" ? HEX.cold : HEX.ok;
+    h += `<tr class="${n.online ? "" : "off"} ${n.id === selSoil ? "sel" : ""}">
+      <td><b>${esc(short(n.name))}</b></td><td>${esc(cropName(n.crop))}</td>
+      <td><span class="mini"><i style="width:${Math.min(100, rm || 0)}%;background:${c}"></i></span>${fmt(rm, 0)}%</td>
+      <td>${fmt(d.AT)}°</td><td>${fmt(d.RH, 0)}%</td><td>${batHtml(a.battery_pct)}</td>
+      <td>${sigBars(l.rssi)} ${l.hop ? "↪" + esc(short(nodeName(l.via))) : ""}</td><td class="mut">${ago(n.age_s)}</td></tr>`;
+  }
+  $("nTable").innerHTML = h;
+}
+
+let tickerSig = "";
+function renderTicker(s, pond, soils) {
+  let items = s.alerts.map((a) => `<span class="${a.level === "crit" ? "c" : a.level === "warn" ? "w" : ""}">● ${esc(alertText(a))}</span>`);
+  if (!items.length) {
+    items = [`<span style="color:var(--ok)">✔ ${esc(t("all_ok"))}</span>`];
+    if (pond && pond.online) items.push(`<span>${esc(short(pond.name))} · ${t("DO")} ${fmt(pond.data.DO, 2)} mg/L · pH ${fmt(pond.data.PH, 2)} · ${fmt(pond.data.WT)} °C</span>`);
+    soils.filter((n) => n.online).forEach((n) => items.push(`<span>${esc(short(n.name))} · ${t("root")} ${fmt(n.analysis.root_moisture, 0)}% · ${fmt(n.data.AT)} °C · ${fmt(n.data.RH, 0)}%</span>`));
+  }
+  const sig = items.join("");
+  if (sig === tickerSig) return;
+  tickerSig = sig;
+  const el = $("ticker");
+  el.innerHTML = sig;
+  el.style.animationDuration = Math.max(25, sig.replace(/<[^>]+>/g, "").length * 0.18) + "s";
+}
+
+/* -------------------------------------------------------- mode / clock */
+function setMode() {
+  const pill = $("mode"), tx = $("modeTx");
+  if (!BOOT.live) { pill.className = "pill demo"; tx.textContent = `${t("demo")} · ${t("sim_note")}`; return; }
+  const stale = Date.now() - lastMsg > 45000;
+  if (!connected || stale) { pill.className = "pill off"; tx.textContent = lastMsg ? t("offline") : t("connecting"); }
+  else if (S && S.hub.mode === "sim") { pill.className = "pill demo"; tx.textContent = `${t("demo")} · ${t("sim_note")}`; }
+  else { pill.className = "pill live"; tx.textContent = t("live"); }
+}
+function tickClock() {
+  const ts = BOOT.live || !S ? Date.now() : S.now * 1000;
+  const loc = I18N[lang]._locale;
+  try {
+    $("clk").textContent = new Intl.DateTimeFormat("en-IN", { hour: "2-digit", minute: "2-digit", second: BOOT.live ? "2-digit" : undefined, hour12: false, timeZone: "Asia/Kolkata" }).format(ts);
+    $("dte").textContent = new Intl.DateTimeFormat(loc, { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Kolkata" }).format(ts);
+  } catch (e) { $("clk").textContent = new Date(ts).toLocaleTimeString(); }
+  setMode();
+  // auto-cycle soil node tabs
+  if (S && Date.now() > cycleAt && Date.now() > pinUntil) {
+    const soils = Object.values(S.nodes).filter((n) => n.type === "SOIL");
+    if (soils.length > 1) {
+      const i = soils.findIndex((n) => n.id === selSoil);
+      selSoil = soils[(i + 1) % soils.length].id;
+      cycleAt = Date.now() + SOIL_CYCLE_MS;
+      $("tabs").dataset.sig = "";
+      render(S, true);
+    } else cycleAt = Date.now() + SOIL_CYCLE_MS;
+  }
+}
+setInterval(tickClock, 1000);
+
+/* -------------------------------------------------------------- control */
+const ctl = $("ctl");
+function pondId() { const p = S && Object.values(S.nodes).find((n) => n.type === "POND"); return p && p.id; }
+async function sendCmd(cmd) {
+  const node = pondId(); if (!node) return;
+  if (!BOOT.live) { window.BhoomiDemo.command(node, { AER: cmd }); toast(`${t("sent")}: AER=${cmd}`); return; }
+  let tok = store.sget("token");
+  if (!tok) { tok = await askToken(); if (!tok) return; }
+  try {
+    const r = await fetch((BOOT.api || "") + "/api/cmd", { method: "POST", headers: { "Content-Type": "application/json", "X-Token": tok },
+      body: JSON.stringify({ node, cmd: { AER: cmd } }) });
+    const j = await r.json();
+    if (!r.ok) { if (r.status === 403) store.sset("token", ""); throw new Error(j.error || r.status); }
+    store.sset("token", tok);
+    toast(`${t("sent")}: AER=${cmd}`);
+  } catch (e) { toast(`${t("cmd_err")}: ${e.message}`); }
+}
+function askToken() {
+  return new Promise((res) => {
+    const box = $("tokbox"), inp = $("tokIn");
+    box.classList.add("show"); inp.value = ""; inp.focus();
+    const done = (v) => { box.classList.remove("show"); $("tokOk").onclick = null; inp.onkeydown = null; res(v); };
+    $("tokOk").onclick = () => done(inp.value.trim());
+    inp.onkeydown = (e) => { if (e.key === "Enter") done(inp.value.trim()); if (e.key === "Escape") done(""); };
+    box.onclick = (e) => { if (e.target === box) done(""); };
+  });
+}
+if (!BOOT.live || BOOT.control) {
+  ctl.hidden = false;
+  ctl.querySelectorAll("button").forEach((b) => (b.onclick = () => sendCmd(b.dataset.cmd)));
+}
+
+/* ------------------------------------------------------------- SMS / 4G */
+let SMS = null;
+function smsBase() { return BOOT.sms || (location.protocol === "file:" ? "" : `${location.protocol}//${location.hostname}:8091`); }
+function renderSms() {
+  const pill = $("smsPill"), tx = $("smsTx");
+  if (!SMS) { pill.className = "pill sms bad"; tx.textContent = "SMS ✕"; return; }
+  const ok = SMS.modem === "registered", bars = SMS.signal_dbm == null ? 0 : SMS.signal_dbm > -75 ? 4 : SMS.signal_dbm > -85 ? 3 : SMS.signal_dbm > -95 ? 2 : 1;
+  pill.className = "pill sms " + (ok ? "ok" : "warn");
+  tx.textContent = `4G ${"▮".repeat(bars)}${"▯".repeat(4 - bars)} · SMS ${SMS.daily_report_time || ""}${SMS.last_daily_date ? " ✓" : ""}`;
+}
+async function pollSms() {
+  if (!BOOT.live) { SMS = { modem: "registered", signal_dbm: -71, daily_report_time: "07:00", last_daily: "07:00", last_daily_date: "today", last_request: "+91980***12 STATUS", registered: 3, sent_today: 4 }; renderSms(); return; }
+  try { const r = await fetch(smsBase() + "/sms/status", { cache: "no-store" }); SMS = await r.json(); } catch (e) { SMS = null; }
+  renderSms();
+}
+$("smsPill").onclick = () => {
+  if (!SMS) { toast("SMS service not running"); return; }
+  toast(`SMS: daily report ${SMS.daily_report_time || "–"} (last ${SMS.last_daily || "–"}) · last request ${SMS.last_request || "–"} · ${SMS.registered || 0} numbers · ${SMS.sent_today || 0} sent today`);
+};
+pollSms(); setInterval(pollSms, 15000);
+
+/* ------------------------------------------------------------ data feed */
+const startedAt = Date.now();
+function onState(s) { lastMsg = Date.now(); connected = true; render(s); }
+function startLive() {
+  const base = BOOT.api || "";
+  fetch(base + "/api/state").then((r) => r.json()).then(onState).catch(() => {});
+  let es;
+  const open = () => {
+    es = new EventSource(base + "/api/events");
+    es.addEventListener("state", (e) => { try { onState(JSON.parse(e.data)); } catch (err) { console.error(err); } });
+    es.onerror = () => { connected = false; setMode(); };
+  };
+  open();
+  setInterval(() => {   // watchdog: reconnect a silent stream
+    if (Date.now() - lastMsg > 60000) { try { es.close(); } catch (e) {} open(); fetch(base + "/api/state").then((r) => r.json()).then(onState).catch(() => {}); }
+  }, 30000);
+}
+function startDemo() {
+  const box = $("scen");
+  box.hidden = false;
+  const draw = () => {
+    box.innerHTML = `<span class="lb">${t("sc_title")}:</span>`;
+    window.BhoomiDemo.scenarios.forEach((sc) => {
+      const b = document.createElement("button");
+      b.textContent = t("sc_" + sc);
+      if (window.BhoomiDemo.current === sc) b.className = "on";
+      b.onclick = () => { window.BhoomiDemo.scenario(sc); draw(); };
+      box.appendChild(b);
+    });
+  };
+  window.addEventListener("bhoomi-lang", draw);
+  window.BhoomiDemo.start(onState);
+  // open a scenario straight from the link, e.g. ...#night  #dry  #fungal  #relay  #aer  #heat
+  const h = (location.hash || "").slice(1);
+  if (window.BhoomiDemo.scenarios.includes(h)) window.BhoomiDemo.scenario(h);
+  if (LANGS.includes(h)) { lang = h; applyLang(); }
+  draw();
+}
+const _apply = applyLang;
+applyLang = function () { _apply(); window.dispatchEvent(new Event("bhoomi-lang")); };
+
+applyLang();
+tickClock();
+if (BOOT.live) startLive(); else startDemo();
+window.addEventListener("resize", () => S && render(S, true));
+})();
+
+</script>
+</body>
+</html>

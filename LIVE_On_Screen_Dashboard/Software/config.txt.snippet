@@ -1,0 +1,7 @@
+# Add to /boot/firmware/config.txt (Raspberry Pi OS Bookworm), then reboot
+dtparam=i2c_arm=on
+dtparam=audio=on
+# GPIO21 (pin 40) to GND for 3 s = safe shutdown
+dtoverlay=gpio-shutdown,gpio_pin=21,active_low=1,gpio_pull=up,debounce=3000
+# Use DS3231 as the system clock (time stays correct with no internet)
+dtoverlay=i2c-rtc,ds3231

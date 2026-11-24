@@ -1,0 +1,16 @@
+[Unit]
+Description=BHOOMI hub SMS (ask any time + daily report + critical alerts)
+After=network-online.target
+
+[Service]
+User=bhoomi
+SupplementaryGroups=dialout
+RuntimeDirectory=bhoomi
+RuntimeDirectoryPreserve=yes
+WorkingDirectory=/opt/bhoomi/software/services
+ExecStart=/usr/bin/python3 sms_service.py --config /etc/bhoomi/hub.json
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

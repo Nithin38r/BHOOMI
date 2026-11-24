@@ -1,0 +1,4 @@
+# Raspberry Pi OS Bookworm desktop (labwc): copy to ~/.config/labwc/autostart
+# Opens the live dashboard full-screen on the HDMI display at boot.
+# Change the address if your hub serves the dashboard on another port.
+chromium-browser --kiosk --noerrdialogs --disable-infobars --incognito --check-for-update-interval=31536000 http://localhost:8080/ &
