@@ -1,0 +1,70 @@
+# BHOOMI · Live Dashboard Monitoring (Raspberry Pi 4 hub)
+
+> ### 🌱 Why BHOOMI
+> **Affordable for every farmer, ready for every farm business.** BHOOMI uses low-cost, widely available parts
+> (ESP32, LoRa, a Raspberry Pi), so a small farmer can start with one node and grow, and a vegetable company can
+> cover many plots with the same system. It works **without internet**, speaks the farmer's **own language**,
+> answers on **any basic phone by SMS**, and every part can be **repaired or replaced locally**.
+> Full value case: see `BHOOMI_Why_Choose_Us.pdf` in the general folder.
+
+This folder is everything for the **hub** of BHOOMI: the box at the farmhouse that collects data from every
+Soil Node and Pond Node, shows it live on a screen, sounds the alarm, speaks alerts, and sends SMS.
+
+![System overview](images/01_system_overview.png)
+
+## What's in this folder
+
+| Path | What it is |
+|---|---|
+| `images/01_system_overview.png` | How the nodes, gateway, Pi, screen, alarm, 4G/SMS and cloud fit together |
+| `images/02_pi4_pin_schematic.png` | **Pin-by-pin schematic** of the Pi 4 hub (OLED, RTC, buzzer, siren, LEDs, buttons, speaker, ports) |
+| `images/03_wiring_illustration.png` | Wiring picture of the real parts and coloured wires |
+| `images/04_dashboard_live_fullhd.png` | The live dashboard (Full HD), showing an aerator-fault alarm |
+| `images/05_dashboard_10inch_1280x800.png` | The same dashboard on a 10.1-inch 1280×800 screen |
+| `images/06_sms_feature.png` | SMS: ask any time, daily morning report, critical alerts, regional language |
+| `hardware/BOM.csv` | Every part to buy for the hub |
+| `docs/PIN_MAP.md` | Pin table (same as the schematic) |
+| `docs/DISPLAY_CONTENT.md` | Everything the live screen shows, card by card |
+| `docs/ALARM_LOGIC.md` | When the LEDs, buzzer, siren and voice go off, and how MUTE works |
+| `docs/SMS_GUIDE.md` | SMS commands, daily report, alert SMS, languages, cost |
+| `docs/DATA_CONTRACT.md` | The `/api/state` snapshot every part reads (for the software team) |
+| `docs/SETUP.md` | Step-by-step Raspberry Pi setup |
+| `software/dashboard/index.html` | The live dashboard (team version, with Alerts on the full right side and the 4G/SMS status) |
+| `software/services/alarm_service.py` | GPIO alarm: LEDs, buzzer, siren, spoken alerts, OLED |
+| `software/services/sms_service.py` | 4G modem SMS: ask any time + daily report + critical alerts |
+| `software/services/bhoomi_common.py` | Shared code: reads `/api/state`, reuses the dashboard's 5-language alert text |
+| `software/config/hub.example.json` | Settings: hub address, phone numbers, report time, language, relay type |
+| `software/setup/` | `install.sh`, systemd services, kiosk autostart, udev rules, `config.txt` lines |
+| `software/sample/` | Real snapshots from the dashboard's demo engine (normal and with critical alerts) |
+
+## The hub in one minute
+
+- **Data in:** Soil and Pond Nodes → LoRa (865 MHz, plus 433 MHz for the current soil node) → ESP32 gateway → USB → Raspberry Pi 4.
+- **Live screen:** a 10.1-inch HDMI display shows the dashboard full-screen at boot (kiosk mode). Phones on the hub's own Wi-Fi (`BHOOMI-HUB`) can open it too. No internet needed.
+- **Alarm:** green / yellow / red LEDs, a buzzer, a 12 V siren for critical alerts, a MUTE button, and spoken alerts in English, Telugu, Hindi, Tamil or Kannada.
+- **Mini display:** a 0.96-inch OLED shows hub status even if the big screen is off.
+- **SMS (4G modem):** a farmer texts **HI** to the hub's number and gets the live report; every morning at **07:00** the report is sent automatically; critical alerts are sent at once.
+- **Safety:** the nodes protect the farm on their own (the Pond Node runs its aerator with no hub). The hub never switches mains wiring; the pump stays on the Pump Node, wired by a licensed electrician. SMS is read-only.
+
+![Pin schematic](images/02_pi4_pin_schematic.png)
+
+## Try it without hardware
+
+```bash
+# Dashboard demo: open in any browser (it runs its own simulated farm)
+software/dashboard/index.html            # add #night, #dry, #fungal, #aer or #heat to the address for scenarios
+
+# Alarm logic on a saved snapshot (prints LEDs / buzzer / siren / voice)
+cd software/services
+python3 alarm_service.py --simulate --sample ../sample/state.alerts.sample.json
+
+# SMS replies, daily report and alert SMS (prints the messages)
+python3 sms_service.py --dry-run --sample ../sample/state.alerts.sample.json
+python3 sms_service.py --dry-run --sample ../sample/state.alerts.sample.json --lang ta
+```
+
+## Status
+- Dashboard, alarm logic and SMS logic are tested on demo data. The GPIO wiring, the 4G modem AT commands and the siren relay still need testing on the real hub. Test the siren with it disconnected first.
+- Alert translations come from the dashboard. Have native speakers check them before field use.
+
+Team BHOOMI · Chennai Institute of Technology · HackWithAditya 2026
