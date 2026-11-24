@@ -6,7 +6,21 @@
 
 **HackWithAditya 2026 · AgriTech & Aquaculture track · Team BHOOMI, Chennai Institute of Technology**
 
-[Electronics](#1--electronics-the-heart-of-bhoomi) · [Soil Node](#11-soil-node) · [Pond Node](#12-pond-node) · [Farm Hub](#13-farm-hub) · [UZHAVAN AI](#4--uzhavan-ai-software) · [Live Dashboard](#5--live-dashboard--sms) · [Digital Twins](#6--digital-twins) · [Impact](#8--impact-and-value)
+![ESP32](https://img.shields.io/badge/ESP32-Arduino%20C%2B%2B-E7352C?logo=espressif&logoColor=white)
+![LoRa](https://img.shields.io/badge/LoRa-433%20%7C%20865%20MHz%20mesh-1F5F3A)
+![Raspberry Pi](https://img.shields.io/badge/Raspberry%20Pi%204-Hub%20screen-C51A4A?logo=raspberrypi&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-22-339933?logo=nodedotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React-18%20%2B%20Vite-61DAFB?logo=react&logoColor=black)
+![Three.js](https://img.shields.io/badge/Three.js-3D%20twins-000000?logo=threedotjs&logoColor=white)
+![Python](https://img.shields.io/badge/Python-Pi%20services-3776AB?logo=python&logoColor=white)
+![MQTT](https://img.shields.io/badge/MQTT-aedes%20%7C%20Mosquitto-660066?logo=mqtt&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-node%3Asqlite-003B57?logo=sqlite&logoColor=white)
+![Fusion 360](https://img.shields.io/badge/Fusion%20360-Enclosure-F6A800?logo=autodesk&logoColor=white)
+![EasyEDA](https://img.shields.io/badge/EasyEDA-Schematics-1E88E5)
+![Languages](https://img.shields.io/badge/Alerts-EN%20%C2%B7%20%E0%B0%A4%E0%B1%86%E0%B0%B2%E0%B1%81%E0%B0%97%E0%B1%81%20%C2%B7%20%E0%AE%A4%E0%AE%AE%E0%AE%BF%E0%AE%B4%E0%AF%8D-F2A33A)
+
+[Tech stack](#tech-stack-models-and-tools) · [Electronics](#1--electronics-the-heart-of-bhoomi) · [Soil Node](#11-soil-node) · [Pond Node](#12-pond-node) · [Farm Hub](#13-farm-hub) · [UZHAVAN AI](#4--uzhavan-ai-software) · [Live Dashboard](#5--live-dashboard--sms) · [Digital Twins](#6--digital-twins) · [Impact](#8--impact-and-value)
 
 ![BHOOMI system overview](LIVE_On_Screen_Dashboard/images/01_system_overview.png)
 
@@ -22,7 +36,51 @@
 
 ---
 
+## Tech stack, models and tools
+
+### 🧠 AI and models in UZHAVAN AI
+UZHAVAN AI is built to be **explainable**: every decision can be traced to a reading and a rule, and the whole system runs on the farm with no cloud AI.
+
+| Model / engine | What it does | Inputs | Where |
+|---|---|---|---|
+| **Decision engine (rule-based)** | Irrigation ON/OFF, crop-stress and pond alerts, device-health alerts, every one explained in plain words | Live packets + crop + thresholds | [`server/src/rules.ts`](UZHAVAN%20AI%20SOFTWARES/server/src/rules.ts) · [hub firmware](LIVE_On_Screen_Dashboard/BHOOMI_Hub.ino) |
+| **Crop water model** | Start/stop moisture per crop, pond-water suitability (pH, EC, turbidity) | FAO Irrigation & Drainage Paper 29 crop limits | Soil twin stage 3 · hub crop table |
+| **Weather-aware irrigation** | Postpones watering when rain ≥ 60 % is forecast in the next 12 h | **Open-Meteo** forecast API | [`server/src/weather.ts`](UZHAVAN%20AI%20SOFTWARES/server/src/weather.ts) |
+| **Trend and forecast models** | Linear-regression trends: *hours until the soil is dry* and *oxygen at dawn* | Last 2–6 h of readings | Hub analysis · live dashboard · pond twin cloud layer |
+| **Fungal-disease risk model** | Low / medium / high risk from leaf-wet hours, humidity and temperature, before symptoms show | Soil Node AT, AH, LW | Node firmware (FUNGAL flag) + UZHAVAN AI |
+| **Dissolved-oxygen model** | Oxygen saturation from water temperature; the oxygen balance from sun, respiration and aerator | Water temperature, DO | Pond firmware + digital twins |
+| **Field simulation models** | Soil-water, pond-oxygen and pump models that behave like the real nodes | Weather scenarios | [`sim/`](UZHAVAN%20AI%20SOFTWARES/sim/) · [twins](#6--digital-twins) |
+| **Spray breakdown model** | Safe-harvest timer from the label's waiting period, adjusted by soil temperature and moisture (never shorter than the label) | Spray log + Soil Node | UZHAVAN AI app |
+| **Soil map** | Interpolates every node's readings into one field map (moisture, temperature, radio coverage) | All Soil Nodes | Soil twin stage 2 |
+| **Voice and language** | Spoken and written alerts in English, Telugu and Tamil (Hindi and Kannada on the live screen) | Alert codes | Web Speech API (app) · espeak-ng (Pi) · Unicode SMS |
+| **Leaf-disease scan (ZAAR-001)** | Our previous project: tells what is wrong with a leaf. BHOOMI tells what is happening in the soil, air and water around it, and asks for a ZAAR scan when disease risk is high | Leaf photo | Previous project |
+
+### ⚙️ Hardware and firmware
+| Layer | Technology |
+|---|---|
+| **Microcontrollers** | ESP32-DevKitC 38-pin (soil, pond, hub) · ESP32-S3 (Soil Node PRO) · FireBeetle 2 ESP32-E (buoy option) |
+| **Radios** | SX1278 Ra-02 433.5 MHz (soil mesh, hub) · RFM95W 865 MHz (pond) · SX1262 (PRO) · LoRa SF9 / BW 125 kHz / CR 4/5 |
+| **Soil sensors** | 2 × capacitive moisture v1.2 · DS18B20 · SHT31 · LM393 LDR · wetness strip · (PRO: RS485 7-in-1, TEROS 12, Watermark, SHT45, BMP390, VEML7700, rain gauge) |
+| **Pond sensors** | DFRobot SEN0237-A DO probe · SEN0169-V2 pH · DFR0504 isolators · ADS1115 16-bit ADC · DS18B20 · INA219 current · DS3231 RTC · SSD1306 OLED |
+| **Power** | 18650 Li-ion · TP4056/DW01 · CN3791 MPPT · HT7833 / TPS63020 / TPS63802 regulators · 6 V solar panels · Pi UPS HAT |
+| **Firmware** | Arduino C++ (ESP32 core 3.0.x) · libraries: LoRa (Sandeep Mistry), OneWire, DallasTemperature, Adafruit ADS1X15 / INA219 / SSD1306 / GFX, RTClib, PubSubClient, Preferences |
+| **Protocol** | **AM1** plain-text packets · ACK with settings · mesh relay (up to 4 hops) · duplicate cache · commands with ACK and retries |
+| **Design tools** | EasyEDA (schematics, KiCad-importable) · Autodesk Fusion 360 (enclosure, STEP) · Python CSG generator (first enclosure) · PETG/ASA 3D printing |
+
+### 💻 Software
+| Layer | Technology |
+|---|---|
+| **Hub server** | Node.js 22 · TypeScript · Fastify 5 · built-in MQTT broker (aedes) · SQLite (`node:sqlite`) · Server-Sent Events |
+| **Farmer app + landing page** | React 18 · Vite 6 · GSAP · Lenis · installable on a phone (PWA) |
+| **Digital twins** | Three.js r128 (WebGL) · vanilla JavaScript · Node.js backends with WebSocket, REST, JSONL storage · MQTT / USB serial inputs · Docker + Mosquitto |
+| **Farmhouse screen (Pi 4)** | Live dashboard (HTML/JS, Chromium kiosk) · Python services: GPIO alarm (gpiozero), SMS over a 4G modem (pyserial, AT commands, Unicode), OLED (luma.oled) · systemd · NetworkManager hotspot |
+| **Testing** | `node:test` unit and end-to-end tests · TypeScript type checks · simulator-driven demos |
+| **Fonts and languages** | Noto Sans Telugu / Tamil (SIL OFL) · English, Telugu, Tamil (Hindi and Kannada on the live screen) |
+
+---
+
 ## Contents
+- [Tech stack, models and tools](#tech-stack-models-and-tools)
 - [The problem](#the-problem)
 - [How BHOOMI works](#how-bhoomi-works)
 - [Repository map](#repository-map)
