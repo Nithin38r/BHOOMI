@@ -157,6 +157,21 @@ Small **solar-powered nodes** sit in the field and at the pond and talk over **L
 - 📖 [Soil Node README](BHOOMI_SN/README.md)
 </td></tr></table>
 
+**The real prototype: soldered and running**
+<table><tr>
+<td width="55%"><img src="BHOOMI_SN/ELECTRONICS/Hardware_pojndnode.jpeg" alt="Soldered BHOOMI Soil Node prototype"></td>
+<td>
+
+The P1 Soil Node built on a protoboard:
+- ESP32-DevKitC at the centre
+- LoRa module with its external antenna
+- 2 × capacitive soil-moisture probes (15 cm and 30 cm)
+- DS18B20 waterproof temperature probes
+- light sensor module, with all sensors on plug-in headers so any probe can be swapped in the field
+
+🎬 [**Watch the hardware video**](BHOOMI_SN/ELECTRONICS/Hardware_pojndnode.mp4)
+</td></tr></table>
+
 **Firmware v3.1, every 15 min:**
 1. Wake and switch the sensors on.
 2. Read every sensor.
