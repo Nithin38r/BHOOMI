@@ -94,6 +94,7 @@ UZHAVAN AI is built to be **explainable**: every decision can be traced to a rea
 - [7 · Smart irrigation concept](#7--smart-irrigation-concept)
 - [8 · Impact and value](#8--impact-and-value)
 - [Quick start](#quick-start) · [AM1 packet format](#am1-packet-format) · [Status](#status) · [Team](#team)
+- [📚 Document previews](#document-previews)
 
 ---
 
@@ -391,6 +392,73 @@ As the hackathon rules require, we disclose that the team used AI coding assista
 | **Ashwin R** | Software, backend and UZHAVAN AI |
 | **Harikarthik R B** | Software, backend and UZHAVAN AI |
 | **Nishanth P R** | Power management · Pond Node documentation and testing |
+
+---
+
+## Document previews
+📚 Every slide moves through the pages on its own. **Click a preview to open the full PDF**, or open *All pages* to see every page at once.
+
+<div align="center">
+
+### 🏆 Submission deck · 10 pages
+<a href="GENERAL/BHOOMI_Submission.pdf"><img src="GENERAL/previews/submission.gif" alt="BHOOMI submission deck, sliding preview" width="900"></a>
+
+The whole project in 10 slides: problem, solution, Soil Node, Pond Node, Farm Hub, UZHAVAN AI, digital twins, impact and status.
+
+<details><summary><b>All pages</b></summary><br><a href="GENERAL/BHOOMI_Submission.pdf"><img src="GENERAL/previews/submission_pages.png" alt="All pages of the submission deck"></a></details>
+
+</div>
+
+<table>
+<tr>
+<td width="50%" align="center" valign="top">
+
+**🌱 Why choose BHOOMI** · 3 pages
+<a href="GENERAL/BHOOMI_Why_Choose_Us.pdf"><img src="GENERAL/previews/why_choose_us.gif" alt="Why choose BHOOMI, sliding preview"></a>
+Affordable, pays back on the farm, easy to maintain, scales for businesses
+<details><summary>All pages</summary><a href="GENERAL/BHOOMI_Why_Choose_Us.pdf"><img src="GENERAL/previews/why_choose_us_pages.png" alt="All pages"></a></details>
+</td>
+<td width="50%" align="center" valign="top">
+
+**🌍 Impact on society** · 5 pages
+<a href="GENERAL/BHOOMI_Social_Impact.pdf"><img src="GENERAL/previews/social_impact.gif" alt="Impact on society, sliding preview"></a>
+Sensor-to-society flowchart, 8 sectors, business model, roll-out plan
+<details><summary>All pages</summary><a href="GENERAL/BHOOMI_Social_Impact.pdf"><img src="GENERAL/previews/social_impact_pages.png" alt="All pages"></a></details>
+</td>
+</tr>
+<tr>
+<td align="center" valign="top">
+
+**💧 Smart irrigation concept** · 10 pages
+<a href="GENERAL/Smart%20irrigation%20Concept.pdf"><img src="GENERAL/previews/smart_irrigation.gif" alt="Smart irrigation concept, sliding preview"></a>
+When, where and how much to water: the full decision cycle
+<details><summary>All pages</summary><a href="GENERAL/Smart%20irrigation%20Concept.pdf"><img src="GENERAL/previews/smart_irrigation_pages.png" alt="All pages"></a></details>
+</td>
+<td align="center" valign="top">
+
+**🖥️ Central hub architecture** · 2 pages
+<a href="GENERAL/BHOOMI_Central_Hub.pdf"><img src="GENERAL/previews/central_hub.gif" alt="Central hub architecture, sliding preview"></a>
+One hub for every node, pump, valve, screen and SMS
+<details><summary>All pages</summary><a href="GENERAL/BHOOMI_Central_Hub.pdf"><img src="GENERAL/previews/central_hub_pages.png" alt="All pages"></a></details>
+</td>
+</tr>
+<tr>
+<td align="center" valign="top">
+
+**🔋 Soil Node power study** · 3 pages
+<a href="BHOOMI_SN/BHOOMI_SoilNode_Power/BHOOMI_SoilNode_Power_Life.pdf"><img src="GENERAL/previews/soil_power.gif" alt="Soil Node power study, sliding preview"></a>
+Sleep current, daily energy and battery life: P1 vs PRO
+<details><summary>All pages</summary><a href="BHOOMI_SN/BHOOMI_SoilNode_Power/BHOOMI_SoilNode_Power_Life.pdf"><img src="GENERAL/previews/soil_power_pages.png" alt="All pages"></a></details>
+</td>
+<td align="center" valign="top">
+
+**🔌 ESP32 wiring and power plan** · 4 pages
+<a href="BHOOMI_SN/ELECTRONICS/ESP32%20sensor%20wiring%20and%20power%20plan.pdf"><img src="GENERAL/previews/wiring_plan.gif" alt="ESP32 wiring and power plan, sliding preview"></a>
+Every Soil Node pin, sensor and power rail
+<details><summary>All pages</summary><a href="BHOOMI_SN/ELECTRONICS/ESP32%20sensor%20wiring%20and%20power%20plan.pdf"><img src="GENERAL/previews/wiring_plan_pages.png" alt="All pages"></a></details>
+</td>
+</tr>
+</table>
 
 <div align="center">
 
